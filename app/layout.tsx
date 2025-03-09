@@ -50,7 +50,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   }
 
   const oauthCallbackURLEncoded = encodeURIComponent(process.env.OAUTH_CALLBACK_URL)
-  const oauthURL = `https://discord.com/oauth2/authorize?client_id=1343503752958709760&response_type=code&redirect_uri=${oauthCallbackURLEncoded}&scope=identify+email`
+  const oauthURL = `https://discord.com/oauth2/authorize?client_id=${process.env.OAUTH_CLIENT_ID}&response_type=code&redirect_uri=${oauthCallbackURLEncoded}&scope=identify+email`
 
   if (!token) {
     redirect(oauthURL)
