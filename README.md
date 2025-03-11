@@ -6,20 +6,15 @@ This project is part of the [FreeSEED "Made In Taiwan" LLM](https://freeseed.ai)
 
 ## Local Development
 
-```
-JWT_SECRET=
-MONGO_URI=
-OPENAI_API_KEY=
-GEMINI_API_KEY=
-OAUTH_CLIENT_ID=
-OAUTH_CLIENT_SECRET=
-OAUTH_CALLBACK_URL=http://localhost:3000/api/auth/discord/callback
-```
+建立 `.env` 檔案，[內容在這](https://discord.com/channels/1342206310225022996/1342215083194974268/1348125670726701088) 。（注意 `OPENAI_API_KEY`, `GEMINI_API_KEY` 請自行建立）
 
 ```
 pnpm install
 pnpm dev
 ```
+
+就可以進到 `http://localhost:3000` 開始開發了
+
 
 ## Deploy
 
