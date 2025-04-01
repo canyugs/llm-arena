@@ -126,88 +126,90 @@ export default function Battle(props: { threadId: string }) {
 
   return (
     <>
-      <div className="w-full flex h-full flex-col md:flex-row">
-        <div className="w-full md:w-1/2 shrink-0">
-          <CardsChat messages={messagesLeft} title="模型 A" />
+      <div className="flex flex-col h-screen">
+        <div className="w-full flex flex-col md:flex-row flex-1 overflow-hidden">
+          <div className="w-full h-1/2 overflow-y-auto border-2 md:w-1/2 md:h-full md:border-0">
+            <CardsChat messages={messagesLeft} title="模型 A" />
+          </div>
+          <div className="w-full h-1/2 overflow-y-auto border-2 md:w-1/2 md:h-full md:border-0">
+            <CardsChat messages={messagesRight} title="模型 B" />
+          </div>
         </div>
-        <div className="w-full md:w-1/2 shrink-0">
-          <CardsChat messages={messagesRight} title="模型 B" />
-        </div>
-      </div>
-      <div className="absolute bottom-0 md:bottom-8 w-full flex justify-center">
-        <div className="w-full md:w-[800px] bg-white hover:shadow-2xl shadow-xl transition-all rounded-xl p-2">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSubmit();
-            }}
-            className="flex gap-2 items-center"
-          >
-            <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full" />
-            <Input
-              value={input}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
-              placeholder={isLoading ? "AI 正在回答中..." : "輸入你想要問 AI 的問題 ..."}
-              disabled={isLoading}
-            />
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "處理中..." : "送出"}
-            </Button>
-          </form>
-          <div className="mt-3 flex flex-col gap-2">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-2 items-center">
-              <Button
-                onClick={() => { handleSubmitResult('A_IS_BETTER') }}
-                variant="outline"
-                className="w-full"
+        <div className="w-full flex justify-center md:mb-8">
+          <div className="w-full md:w-[800px] bg-white hover:shadow-2xl shadow-xl transition-all rounded-xl p-2">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmit();
+              }}
+              className="flex gap-2 items-center"
+            >
+              <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full" />
+              <Input
+                value={input}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
+                placeholder={isLoading ? "AI 正在回答中..." : "輸入你想要問 AI 的問題 ..."}
                 disabled={isLoading}
-              >
-                👍 模型 A 比較讚
+              />
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "處理中..." : "送出"}
               </Button>
-              <Button
-                onClick={() => { handleSubmitResult('B_IS_BETTER') }}
-                variant="outline"
-                className="w-full"
-                disabled={isLoading}
-              >
-                👍 模型 B 比較讚
-              </Button>
-              <Button
-                onClick={() => { handleSubmitResult('TIE') }}
-                variant="outline"
-                className="w-full"
-                disabled={isLoading}
-              >
-                🎉 兩個都不錯
-              </Button>
-              <Button
-                onClick={() => { handleSubmitResult('BOTH_BAD') }}
-                variant="outline"
-                className="w-full"
-                disabled={isLoading}
-              >
-                💩 兩個都很爛
-              </Button>
-              <Button
-                onClick={() => { redirect('/') }}
-                variant="outline"
-                type="button"
-                disabled={isLoading}
-                className="hidden md:block w-full"
-              >
-                🥊 開始新對決
-              </Button>
-            </div>
-            <div className="md:hidden w-full">
-              <Button
-                onClick={() => { redirect('/') }}
-                variant="outline"
-                type="button"
-                disabled={isLoading}
-                className="w-full"
-              >
-                🥊 開始新對決
-              </Button>
+            </form>
+            <div className="mt-3 flex flex-col gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2 items-center">
+                <Button
+                  onClick={() => { handleSubmitResult('A_IS_BETTER') }}
+                  variant="outline"
+                  className="w-full"
+                  disabled={isLoading}
+                >
+                  👍 模型 A 比較讚
+                </Button>
+                <Button
+                  onClick={() => { handleSubmitResult('B_IS_BETTER') }}
+                  variant="outline"
+                  className="w-full"
+                  disabled={isLoading}
+                >
+                  👍 模型 B 比較讚
+                </Button>
+                <Button
+                  onClick={() => { handleSubmitResult('TIE') }}
+                  variant="outline"
+                  className="w-full"
+                  disabled={isLoading}
+                >
+                  🎉 兩個都不錯
+                </Button>
+                <Button
+                  onClick={() => { handleSubmitResult('BOTH_BAD') }}
+                  variant="outline"
+                  className="w-full"
+                  disabled={isLoading}
+                >
+                  💩 兩個都很爛
+                </Button>
+                <Button
+                  onClick={() => { redirect('/') }}
+                  variant="outline"
+                  type="button"
+                  disabled={isLoading}
+                  className="hidden md:block w-full"
+                >
+                  🥊 開始新對決
+                </Button>
+              </div>
+              <div className="md:hidden w-full">
+                <Button
+                  onClick={() => { redirect('/') }}
+                  variant="outline"
+                  type="button"
+                  disabled={isLoading}
+                  className="w-full"
+                >
+                  🥊 開始新對決
+                </Button>
+              </div>
             </div>
           </div>
         </div>
