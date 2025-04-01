@@ -13,7 +13,7 @@ export function CardsChat(props: { messages: { role: string, content: string }[]
     <Card className="w-full h-full flex flex-col border-none rounded-none">
       <CardHeader>
         <div className="flex">
-          <h2 className="text-lg font-bold flex-1">{props.title}</h2>
+          <h2 className="text-sm font-bold flex-1 md:text-lg">{props.title}</h2>
         </div>
       </CardHeader>
       <CardContent className="pt-4 overflow-y-auto flex-1 pb-24">
