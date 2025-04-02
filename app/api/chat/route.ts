@@ -63,6 +63,7 @@ export async function POST(request: NextRequest) {
     await updateThreadMessages(threadID, modelId, { role: 'assistant', content: fullResponse }, userID);
   };
 
+  // Store the user message in the thread
   for (const modelId of thread.selectedModels) {
     await updateThreadMessages(threadID, modelId, { role: 'user', content: message }, userID);
   }
@@ -79,6 +80,7 @@ export async function POST(request: NextRequest) {
         const messages = thread[index === 0 ? 'model1Messages' : 'model2Messages'] || [];
         const updatedMessages = [...messages, { role: 'user', content: message } as { role: 'user' | 'assistant', content: string }];
 
+        // No longer sending the correct answer to the models
         return {
           modelId,
           promise: new OpenAI({
@@ -193,6 +195,9 @@ interface ThreadDocument {
   selectedModels: string[];
   model1Messages: { role: 'user' | 'assistant', content: string }[];
   model2Messages: { role: 'user' | 'assistant', content: string }[];
+  suggestedAnswer?: {
+    answer: string;
+  }
 }
 
 async function getThreadMessages(threadID: ObjectId) {

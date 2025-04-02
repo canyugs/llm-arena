@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { CardsChat } from "@/components/cards/chat";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { useUser } from "../contexts/UserContext";
 
@@ -19,9 +20,12 @@ export default function Battle(props: { threadId: string }) {
   const user = useUser();
 
   const [input, setInput] = useState<string>('');
+  const [suggestedAnswer, setSuggestedAnswer] = useState<string>('');
   const [messagesLeft, setMessagesLeft] = useState<Message[]>([]);
   const [messagesRight, setMessagesRight] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showSuggestedAnswer, setShowSuggestedAnswer] = useState<boolean>(false);
+  const [isSubmittingAnswer, setIsSubmittingAnswer] = useState<boolean>(false);
 
   const handleSubmit = async (): Promise<void> => {
     if (!input.trim() || isLoading) return;
@@ -49,7 +53,6 @@ export default function Battle(props: { threadId: string }) {
 
       if (!response.body) {
         setIsLoading(false);
-
         return;
       }
 
@@ -90,6 +93,10 @@ export default function Battle(props: { threadId: string }) {
           }
         }
       }
+      
+      // Reset suggested answer after submission
+      setSuggestedAnswer('');
+      setShowSuggestedAnswer(false);
 
     } catch {
       setMessagesLeft(prev => [
@@ -124,6 +131,45 @@ export default function Battle(props: { threadId: string }) {
     }
   }
 
+  const handleSubmitSuggestedAnswer = async (): Promise<void> => {
+    if (!suggestedAnswer.trim() || isSubmittingAnswer) return;
+    
+    setIsSubmittingAnswer(true);
+    
+    try {
+      const response = await fetch('/api/suggested-answer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          threadId,
+          suggestedAnswer: suggestedAnswer.trim()
+        }),
+      });
+      
+      if (response.ok) {
+        toast({
+          title: '正確答案已提交',
+          description: '感謝您的貢獻！'
+        });
+        setSuggestedAnswer('');
+        setShowSuggestedAnswer(false);
+      } else {
+        toast({
+          title: '提交失敗',
+          description: '請稍後再試'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: '提交失敗',
+        description: '請稍後再試'
+      });
+    } finally {
+      setIsSubmittingAnswer(false);
+    }
+  };
+
   return (
     <>
       <div className="flex flex-col h-screen">
@@ -155,6 +201,7 @@ export default function Battle(props: { threadId: string }) {
                 {isLoading ? "處理中..." : "送出"}
               </Button>
             </form>
+            
             <div className="mt-3 flex flex-col gap-2">
               <div className="grid grid-cols-2 md:grid-cols-5 gap-2 items-center">
                 <Button
@@ -209,6 +256,40 @@ export default function Battle(props: { threadId: string }) {
                 >
                   🥊 開始新對決
                 </Button>
+              </div>
+              
+              {/* Correct Answer Button */}
+              <div className="mt-2">
+                <Button 
+                  variant="outline" 
+                  className="text-sm w-full"
+                  onClick={() => setShowSuggestedAnswer(!showSuggestedAnswer)}
+                  disabled={isLoading}
+                >
+                  {showSuggestedAnswer ? "隱藏正確答案" : "點我輸入正確答案"}
+                </Button>
+                
+                {showSuggestedAnswer && (
+                  <div className="mt-2">
+                    <Textarea
+                      value={suggestedAnswer}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSuggestedAnswer(e.target.value)}
+                      placeholder="輸入正確答案..."
+                      disabled={isLoading || isSubmittingAnswer}
+                      className="w-full min-h-[100px] resize-y"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      您提供的正確答案將用於收集資料，幫助我們改進 AI 模型的表現和準確性。
+                    </p>
+                    <Button
+                      onClick={handleSubmitSuggestedAnswer}
+                      disabled={isLoading || isSubmittingAnswer || !suggestedAnswer.trim()}
+                      className="w-full mt-2"
+                    >
+                      {isSubmittingAnswer ? "提交中..." : "送出正確答案"}
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
