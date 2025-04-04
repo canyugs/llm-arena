@@ -22,6 +22,8 @@ export default function Battle(props: { threadId: string }) {
   const [messagesLeft, setMessagesLeft] = useState<Message[]>([]);
   const [messagesRight, setMessagesRight] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showUserAnswer, setShowUserAnswer] = useState<boolean>(false);
+  const [userAnswer, setUserAnswer] = useState<string>('');
 
   const handleSubmit = async (): Promise<void> => {
     if (!input.trim() || isLoading) return;
@@ -122,98 +124,166 @@ export default function Battle(props: { threadId: string }) {
         description: '請稍後再試'
       })
     }
-  }
+  };
+
+  const handleSubmitUserAnswer = async (): Promise<void> => {
+    if (!userAnswer.trim()) {
+      toast({
+        title: '冒險者！你的答案卷軸是空的',
+        description: '在踏上征途前，請先寫下你的智慧之語！'
+      });
+
+      return;
+    }
+
+    const response = await fetch('/api/submit-answer', {
+      method: 'POST',
+      body: JSON.stringify({
+        threadID: threadId,
+        userAnswer
+      })
+    });
+
+    if (response.ok) {
+      toast({
+        title: '答案已收入知識寶庫！',
+        description: '太厲害了！你的智慧之光照亮了整個魔法世界！'
+      });
+
+      setUserAnswer('');
+      setShowUserAnswer(false);
+    } else {
+      toast({
+        title: '魔法傳送失敗',
+        description: '哎呀！魔法能量不足，請稍後再試一次吧～'
+      });
+    }
+  };
 
   return (
-    <>
-      <div className="flex flex-col h-screen">
-        <div className="w-full flex flex-col md:flex-row flex-1 overflow-hidden">
-          <div className="w-full h-1/2 overflow-y-auto border-2 md:w-1/2 md:h-full md:border-0">
-            <CardsChat messages={messagesLeft} title="模型 A" />
-          </div>
-          <div className="w-full h-1/2 overflow-y-auto border-2 md:w-1/2 md:h-full md:border-0">
-            <CardsChat messages={messagesRight} title="模型 B" />
-          </div>
+    <div className="flex flex-col h-screen">
+      <div className="w-full flex flex-col md:flex-row flex-1 overflow-hidden">
+        <div className="w-full h-1/2 overflow-y-auto border-2 md:w-1/2 md:h-full md:border-0">
+          <CardsChat messages={messagesLeft} title="模型 A" />
         </div>
-        <div className="w-full flex justify-center md:mb-8">
-          <div className="w-full md:w-[800px] bg-white hover:shadow-2xl shadow-xl transition-all rounded-xl p-2">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSubmit();
-              }}
-              className="flex gap-2 items-center"
-            >
-              <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full" />
-              <Input
-                value={input}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
-                placeholder={isLoading ? "AI 正在回答中..." : "輸入你想要問 AI 的問題 ..."}
+        <div className="w-full h-1/2 overflow-y-auto border-2 md:w-1/2 md:h-full md:border-0">
+          <CardsChat messages={messagesRight} title="模型 B" />
+        </div>
+      </div>
+      <div className="w-full flex justify-center md:mb-8">
+        <div className="w-full md:w-[800px] bg-white hover:shadow-2xl shadow-xl transition-all rounded-xl p-2">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit();
+            }}
+            className="flex gap-2 items-center"
+          >
+            <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full" />
+            <Input
+              value={input}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
+              placeholder={isLoading ? "AI 正在回答中..." : "輸入你想要問 AI 的問題 ..."}
+              disabled={isLoading}
+            />
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "處理中..." : "送出"}
+            </Button>
+          </form>
+          <div className="mt-3 flex flex-col gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-2 items-center">
+              <Button
+                onClick={() => { handleSubmitResult('A_IS_BETTER') }}
+                variant="outline"
+                className="w-full"
                 disabled={isLoading}
-              />
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "處理中..." : "送出"}
+              >
+                👍 模型 A 比較讚
               </Button>
-            </form>
-            <div className="mt-3 flex flex-col gap-2">
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-2 items-center">
-                <Button
-                  onClick={() => { handleSubmitResult('A_IS_BETTER') }}
-                  variant="outline"
-                  className="w-full"
-                  disabled={isLoading}
-                >
-                  👍 模型 A 比較讚
-                </Button>
-                <Button
-                  onClick={() => { handleSubmitResult('B_IS_BETTER') }}
-                  variant="outline"
-                  className="w-full"
-                  disabled={isLoading}
-                >
-                  👍 模型 B 比較讚
-                </Button>
-                <Button
-                  onClick={() => { handleSubmitResult('TIE') }}
-                  variant="outline"
-                  className="w-full"
-                  disabled={isLoading}
-                >
-                  🎉 兩個都不錯
-                </Button>
-                <Button
-                  onClick={() => { handleSubmitResult('BOTH_BAD') }}
-                  variant="outline"
-                  className="w-full"
-                  disabled={isLoading}
-                >
-                  💩 兩個都很爛
-                </Button>
-                <Button
-                  onClick={() => { redirect('/') }}
-                  variant="outline"
-                  type="button"
-                  disabled={isLoading}
-                  className="hidden md:block w-full"
-                >
-                  🥊 開始新對決
-                </Button>
-              </div>
-              <div className="md:hidden w-full">
-                <Button
-                  onClick={() => { redirect('/') }}
-                  variant="outline"
-                  type="button"
-                  disabled={isLoading}
-                  className="w-full"
-                >
-                  🥊 開始新對決
-                </Button>
-              </div>
+              <Button
+                onClick={() => { handleSubmitResult('B_IS_BETTER') }}
+                variant="outline"
+                className="w-full"
+                disabled={isLoading}
+              >
+                👍 模型 B 比較讚
+              </Button>
+              <Button
+                onClick={() => { handleSubmitResult('TIE') }}
+                variant="outline"
+                className="w-full"
+                disabled={isLoading}
+              >
+                🎉 兩個都不錯
+              </Button>
+              <Button
+                onClick={() => { handleSubmitResult('BOTH_BAD') }}
+                variant="outline"
+                className="w-full"
+                disabled={isLoading}
+              >
+                💩 兩個都很爛
+              </Button>
+              <Button
+                onClick={() => {
+                  if (messagesLeft.length === 0 || messagesRight.length === 0) {
+                    toast({
+                      title: '等等！冒險尚未開始',
+                      description: '先向智慧大師提出你的問題，才能記錄你的答案卷軸！'
+                    });
+
+                    return;
+                  }
+
+                  setShowUserAnswer(true);
+                }}
+                variant="outline"
+                className="w-full"
+                disabled={isLoading}
+              >
+                ✍️ 提供正確答案
+              </Button>
+              <Button
+                onClick={() => { redirect('/') }}
+                variant="outline"
+                type="button"
+                disabled={isLoading}
+                className="w-full"
+              >
+                🥊 開始新對決
+              </Button>
             </div>
+            {showUserAnswer && (
+              <div className="mt-3">
+                <textarea
+                  value={userAnswer}
+                  onChange={(e) => setUserAnswer(e.target.value)}
+                  placeholder="請提供您的答案..."
+                  className="w-full p-2 border rounded-md min-h-[100px]"
+                  disabled={isLoading}
+                />
+                <div className="flex justify-end mt-2">
+                  <Button
+                    onClick={() => { setShowUserAnswer(false); setUserAnswer(''); }}
+                    variant="outline"
+                    className="mr-2"
+                    disabled={isLoading}
+                  >
+                    取消
+                  </Button>
+                  <Button
+                    onClick={() => { handleSubmitUserAnswer(); }}
+                    disabled={isLoading || !userAnswer.trim()}
+                  >
+                    送出答案
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </>
+
+    </div>
   );
 }
