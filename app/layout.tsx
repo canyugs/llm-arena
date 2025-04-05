@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { verifyToken } from "@/lib/jwt";
 import getMongoClient from "@/lib/mongo";
 import { UserProvider } from './providers/UserProvider';
+import AgreementModal from './_components/AgreementModal';
 import Header from './_components/Header';
 
 const geistSans = Geist({
@@ -77,13 +78,15 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <UserProvider user={{
           _id: user._id.toString(),
           username: user.username,
-          avatar: user.avatar
+          avatar: user.avatar,
+          hasAgreedToTerms: user.hasAgreedToTerms || false
         }}>
           <Header />
           <div className="flex-grow">
             {children}
           </div>
           <Toaster />
+          <AgreementModal />
         </UserProvider>
       </body>
     </html>
