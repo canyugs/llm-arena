@@ -6,14 +6,19 @@ import { verifyToken } from "@/lib/jwt";
 
 const availableModels = [
   {
-    model: 'chatgpt-4o-latest',
-    baseURL: 'https://api.openai.com/v1/',
-    apiKey: process.env.OPENAI_API_KEY,
+    model: 'Yu-Feng/Llama-3.1-TAIDE-LX-8B-Chat:FP16',
+    baseURL: process.env.FREESEED_OPENWEBUI_BASE_URL,
+    apiKey: process.env.FREESEED_OPENWEBUI_API_KEY,
   },
   {
-    model: 'gemini-1.5-flash',
-    baseURL: 'https://generativelanguage.googleapis.com/v1beta/',
-    apiKey: process.env.GEMINI_API_KEY,
+    model: 'wangrongsheng/taiwanllm-13b-v2.0-chat:latest',
+    baseURL: process.env.FREESEED_OPENWEBUI_BASE_URL,
+    apiKey: process.env.FREESEED_OPENWEBUI_API_KEY,
+  },
+  {
+    model: 'deepseek-r1:14b',
+    baseURL: process.env.FREESEED_OPENWEBUI_BASE_URL,
+    apiKey: process.env.FREESEED_OPENWEBUI_API_KEY,
   },
 ];
 
@@ -128,11 +133,21 @@ export async function POST(request: NextRequest) {
   });
 }
 
-function selectRandomModels(): string[] {
-  const indices = Array.from({ length: availableModels.length }, (_, i) => i.toString());
-  const shuffled = indices.sort(() => 0.5 - Math.random());
+function shuffle<T>(array: T[]): T[] {
+  const arr = [...array];
 
-  return shuffled.slice(0, 2).map((index) => availableModels[parseInt(index)].model);
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+
+  return arr;
+}
+
+function selectRandomModels(): string[] {
+  const shuffledModels = shuffle(availableModels);
+
+  return shuffledModels.slice(0, 2).map((item) => item.model);
 }
 
 async function saveThreadModels(
