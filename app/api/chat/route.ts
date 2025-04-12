@@ -4,23 +4,20 @@ import { OpenAI } from "openai";
 import getMongoClient from "@/lib/mongo";
 import { verifyToken } from "@/lib/jwt";
 
-const availableModels = [
-  {
-    model: 'Yu-Feng/Llama-3.1-TAIDE-LX-8B-Chat:FP16',
-    baseURL: process.env.FREESEED_OPENWEBUI_BASE_URL,
-    apiKey: process.env.FREESEED_OPENWEBUI_API_KEY,
-  },
-  {
-    model: 'wangrongsheng/taiwanllm-13b-v2.0-chat:latest',
-    baseURL: process.env.FREESEED_OPENWEBUI_BASE_URL,
-    apiKey: process.env.FREESEED_OPENWEBUI_API_KEY,
-  },
-  {
-    model: 'deepseek-r1:14b',
-    baseURL: process.env.FREESEED_OPENWEBUI_BASE_URL,
-    apiKey: process.env.FREESEED_OPENWEBUI_API_KEY,
-  },
-];
+const getAvailableModels = async () => {
+  const mongo = await getMongoClient();
+
+  try {
+    const models = mongo.db('arena').collection<{ model: string, baseURL: string, apiKey: string }>('models');
+    const find = await models.find({}).toArray();
+
+    return find;
+  } catch (error) {
+    throw new Error(`Failed to get available models: ${error}`);
+  } finally {
+    await mongo.close();
+  }
+}
 
 export async function POST(request: NextRequest) {
   const { threadId, message } = await request.json();
@@ -51,7 +48,7 @@ export async function POST(request: NextRequest) {
   let thread = await getThreadMessages(threadID);
 
   if (!thread) {
-    const selectedModels = selectRandomModels();
+    const selectedModels = await selectRandomModels();
     await saveThreadModels(threadID, selectedModels, userID);
     thread = await getThreadMessages(threadID);
   }
@@ -74,6 +71,8 @@ export async function POST(request: NextRequest) {
 
   (async () => {
     try {
+      const availableModels = await getAvailableModels();
+
       const modelPromises = thread.selectedModels.map((modelId: string, index: number) => {
         const modelConfig = availableModels.find((model) => model.model === modelId);
 
@@ -144,7 +143,8 @@ function shuffle<T>(array: T[]): T[] {
   return arr;
 }
 
-function selectRandomModels(): string[] {
+async function selectRandomModels(): Promise<string[]> {
+  const availableModels = await getAvailableModels();
   const shuffledModels = shuffle(availableModels);
 
   return shuffledModels.slice(0, 2).map((item) => item.model);
