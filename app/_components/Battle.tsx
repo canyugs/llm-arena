@@ -198,7 +198,7 @@ export default function Battle(props: { threadId: string }) {
                 className="w-full"
                 disabled={isLoading}
               >
-                👍 模型 A 比較讚
+                👈 模型 A 比較讚
               </Button>
               <Button
                 onClick={() => { handleSubmitResult('B_IS_BETTER') }}
@@ -206,7 +206,7 @@ export default function Battle(props: { threadId: string }) {
                 className="w-full"
                 disabled={isLoading}
               >
-                👍 模型 B 比較讚
+                👉 模型 B 比較讚
               </Button>
               <Button
                 onClick={() => { handleSubmitResult('TIE') }}
@@ -214,7 +214,7 @@ export default function Battle(props: { threadId: string }) {
                 className="w-full"
                 disabled={isLoading}
               >
-                🎉 兩個都不錯
+                🤝 平手
               </Button>
               <Button
                 onClick={() => { handleSubmitResult('BOTH_BAD') }}
@@ -222,7 +222,7 @@ export default function Battle(props: { threadId: string }) {
                 className="w-full"
                 disabled={isLoading}
               >
-                💩 兩個都很爛
+                👎 兩個都很爛
               </Button>
               <Button
                 onClick={() => {
