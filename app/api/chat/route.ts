@@ -3,6 +3,9 @@ import { ObjectId } from "mongodb";
 import { OpenAI } from "openai";
 import getMongoClient from "@/lib/mongo";
 import { verifyToken } from "@/lib/jwt";
+import { Stream } from "openai/streaming.mjs";
+import { ChatCompletionChunk } from "openai/resources/index.mjs";
+import { BedrockRuntimeClient, ConverseStreamCommand, ConverseStreamCommandOutput, ConverseStreamOutput } from "@aws-sdk/client-bedrock-runtime";
 
 const getAvailableModels = async () => {
   const mongo = await getMongoClient();
@@ -73,7 +76,7 @@ export async function POST(request: NextRequest) {
     try {
       const availableModels = await getAvailableModels();
 
-      const modelPromises = thread.selectedModels.map((modelId: string, index: number) => {
+      const modelPromises = thread.selectedModels.map(async (modelId: string, index: number) => {
         const modelConfig = availableModels.find((model) => model.model === modelId);
 
         if (!modelConfig) {
@@ -83,32 +86,89 @@ export async function POST(request: NextRequest) {
         const messages = thread[index === 0 ? 'model1Messages' : 'model2Messages'] || [];
         const updatedMessages = [...messages, { role: 'user', content: message } as { role: 'user' | 'assistant', content: string }];
 
+        let streamResponse: StreamResponse;
+
+        if (modelConfig.model.startsWith('bedrock@')) {
+          const client = new BedrockRuntimeClient({
+            region: "us-east-1",
+            credentials: {
+              accessKeyId: modelConfig.apiKey.split(':')[0],
+              secretAccessKey: modelConfig.apiKey.split(':')[1],
+            }
+          });
+          const response = await client.send(new ConverseStreamCommand({
+            inferenceConfig: {},
+            modelId: modelConfig.model.split('@')[1],
+            messages: updatedMessages.map((message) => ({ role: message.role, content: [{ text: message.content }] }))
+          }));
+          if (!response.stream) {
+            throw new Error(JSON.stringify(response));
+          }
+          streamResponse = {
+            type: 'bedrock',
+            stream: response.stream
+          }
+        } else {
+          streamResponse = {
+            type: 'openai',
+            stream: await new OpenAI({ baseURL: modelConfig.baseURL, apiKey: modelConfig.apiKey, }).chat.completions.create({ model: modelConfig.model, messages: updatedMessages, stream: true, })
+          }
+        }
+
         return {
           modelId,
-          promise: new OpenAI({
-            baseURL: modelConfig.baseURL,
-            apiKey: modelConfig.apiKey,
-          }).chat.completions.create({
-            model: modelConfig.model,
-            messages: updatedMessages,
-            stream: true,
-          })
+          streamResponse
         };
       });
 
-      const responsePromises = modelPromises.map(async ({ modelId, promise }) => {
-        const response = await promise;
+      const responsePromises = modelPromises.map(async (modelPromise) => {
+        const { modelId, streamResponse } = await modelPromise;
+
+        let openAIStream: Stream<ChatCompletionChunk> | undefined;
+        let bedrockStream: AsyncIterable<ConverseStreamOutput> | undefined;
+
+        switch (streamResponse.type) {
+          case "openai":
+            openAIStream = streamResponse.stream;
+            break;
+          case "bedrock":
+            bedrockStream = streamResponse.stream;
+            break;
+        }
+
         let fullResponse = '';
 
-        for await (const chunk of response) {
-          const text = chunk.choices[0]?.delta.content;
+        if (openAIStream) {
+          for await (const chunk of openAIStream) {
+            const text = chunk.choices[0]?.delta.content;
 
-          if (text) {
-            fullResponse += text;
-            await writer.write(encoder.encode(JSON.stringify({
-              type: modelId === thread.selectedModels[0] ? 'model1' : 'model2',
-              content: text
-            }) + '\n'));
+            if (text) {
+              fullResponse += text;
+              await writer.write(encoder.encode(JSON.stringify({
+                type: modelId === thread.selectedModels[0] ? 'model1' : 'model2',
+                content: text
+              }) + '\n'));
+            }
+          }
+        }
+
+        if (bedrockStream) {
+          for await (const chunk of bedrockStream) {
+            let text = '';
+            if (chunk.contentBlockDelta?.delta?.reasoningContent?.text) {
+              text = chunk.contentBlockDelta.delta.reasoningContent.text;
+            }
+            if (chunk.contentBlockDelta?.delta?.text) {
+              text = chunk.contentBlockDelta?.delta?.text;
+            }
+
+            if (text) {
+              fullResponse += text;
+              await writer.write(encoder.encode(JSON.stringify({
+                type: modelId === thread.selectedModels[0] ? 'model1' : 'model2',
+                content: text
+              }) + '\n'));
+            }
           }
         }
 
@@ -226,3 +286,15 @@ async function getThreadMessages(threadID: ObjectId) {
     await mongo.close();
   }
 }
+
+interface OpenAIStreamResponse {
+  type: 'openai';
+  stream: Stream<ChatCompletionChunk>
+}
+
+interface BedrockStreamResponse {
+  type: 'bedrock';
+  stream: AsyncIterable<ConverseStreamOutput>
+}
+
+type StreamResponse = OpenAIStreamResponse | BedrockStreamResponse;
