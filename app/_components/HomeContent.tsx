@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/app/contexts/UserContext';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Topic {
   id: number;
@@ -20,6 +22,9 @@ interface HomeContentProps {
 export default function HomeContent({ newThreadId, hotTopics }: HomeContentProps) {
   const { toast } = useToast();
   const user = useUser();
+  const router = useRouter();
+  const [message, setMessage] = useState('');
+  const [mobileMessage, setMobileMessage] = useState('');
 
   const handleFeatureUnderConstruction = () => {
     toast({
@@ -54,6 +59,30 @@ export default function HomeContent({ newThreadId, hotTopics }: HomeContentProps
     handleFeatureUnderConstruction();
   };
 
+  const handleSubmit = async (messageText: string) => {
+    if (!messageText.trim()) return;
+    
+    if (!user) {
+      handleLoginRequired();
+      return;
+    }
+
+    // 使用客戶端路由導航，將訊息存儲在 sessionStorage 中
+    // 這樣可以避免訊息出現在 URL 中，同時保持 ChatClient 的現有邏輯
+    sessionStorage.setItem('pendingMessage', messageText);
+    router.push(`/?threadId=${newThreadId}`);
+  };
+
+  const handleDesktopSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSubmit(message);
+  };
+
+  const handleMobileSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSubmit(mobileMessage);
+  };
+
   return (
     <div className="w-full min-h-screen bg-white md:pb-0 pb-16">
       {/* 主要內容區 */}
@@ -66,18 +95,17 @@ export default function HomeContent({ newThreadId, hotTopics }: HomeContentProps
           <div className="max-w-4xl mx-auto relative px-4">
             <div className="relative">
               <div className="relative w-full">
-                <form action="/" method="get" className="w-full">
-                  <input type="hidden" name="threadId" value={newThreadId} />
+                <form onSubmit={handleDesktopSubmit} className="w-full">
                   <div className="relative w-full">
                     <Input
-                      name="message"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
                       className="w-full pr-32 py-7 text-base border border-gray-100 bg-white focus-visible:ring-0 focus-visible:ring-offset-0 rounded-lg shadow-sm"
                       placeholder="AI 想聽你說說話......"
                       required
                     />
                     <Button
-                      type="button"
-                      onClick={handleLoginRequired}
+                      type="submit"
                       className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg flex items-center gap-2"
                     >
                       <img src="/icons/chat/send.svg" alt="Send" width={16} height={16} />
@@ -93,18 +121,17 @@ export default function HomeContent({ newThreadId, hotTopics }: HomeContentProps
         {/* 手機版固定在底部的輸入框 */}
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t p-2 z-20">
           <div className="relative flex items-center">
-            <form action="/" method="get" className="w-full">
-              <input type="hidden" name="threadId" value={newThreadId} />
+            <form onSubmit={handleMobileSubmit} className="w-full">
               <div className="relative">
                 <Input
-                  name="message"
+                  value={mobileMessage}
+                  onChange={(e) => setMobileMessage(e.target.value)}
                   className="pr-14 py-3 text-base border border-gray-100 bg-white focus-visible:ring-0 focus-visible:ring-offset-0 rounded-lg"
                   placeholder="AI想聽你說說話!"
                   required
                 />
                 <Button
-                  type="button"
-                  onClick={handleLoginRequired}
+                  type="submit"
                   className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg flex items-center justify-center"
                 >
                   <img src="/icons/chat/send.svg" alt="Send" width={16} height={16} />

@@ -25,14 +25,33 @@ export default function ChatClient({ threadId, initialMessage }: { threadId: str
   const [messagesLeft, setMessagesLeft] = useState<Message[]>([]);
   const [messagesRight, setMessagesRight] = useState<Message[]>([]);
   // 用戶輸入
-  const [input, setInput] = useState<string>(initialMessage || '');
+  const [input, setInput] = useState<string>('');
 
-  // 如果有初始消息，自動提交
+  // 檢查是否有待處理的訊息（從 sessionStorage 或 initialMessage）
   useEffect(() => {
-    if (initialMessage && initialMessage.trim() && !isLoading && messagesLeft.length === 0) {
-      handleSubmit();
+    const pendingMessage = sessionStorage.getItem('pendingMessage');
+    if (pendingMessage) {
+      setInput(pendingMessage);
+      sessionStorage.removeItem('pendingMessage'); // 清除已使用的訊息
+      
+      // 自動提交待處理的訊息
+      if (!isLoading && messagesLeft.length === 0) {
+        setTimeout(() => {
+          handleSubmitWithMessage(pendingMessage);
+        }, 100); // 短暫延遲確保組件完全載入
+      }
+    } else if (initialMessage && initialMessage.trim()) {
+      setInput(initialMessage);
+      
+      // 自動提交初始訊息（保持向後兼容）
+      if (!isLoading && messagesLeft.length === 0) {
+        setTimeout(() => {
+          handleSubmitWithMessage(initialMessage);
+        }, 100);
+      }
     }
   }, []);
+
   // 加載狀態
   const [isLoading, setIsLoading] = useState<boolean>(false);
   // 用戶答案
@@ -40,17 +59,16 @@ export default function ChatClient({ threadId, initialMessage }: { threadId: str
   // 是否已經投票
   const [hasVoted, setHasVoted] = useState<boolean>(false);
 
-  // 處理提交消息
-  const handleSubmit = async (): Promise<void> => {
-    if (!input.trim() || isLoading) return;
+  // 處理提交消息（使用指定的訊息）
+  const handleSubmitWithMessage = async (messageText: string): Promise<void> => {
+    if (!messageText.trim() || isLoading) return;
 
-    const userMessage = input.trim();
     setInput('');
     setIsLoading(true);
     setHasVoted(false); // 重置投票狀態
     setSelectedVote(null); // 重置選中的投票按鈕
 
-    const newUserMessage: Message = { role: 'user', content: userMessage };
+    const newUserMessage: Message = { role: 'user', content: messageText };
     const loadingMessage: Message = { role: 'assistant', content: '思考中...' };
 
     setMessagesLeft(prev => [...prev, newUserMessage, loadingMessage]);
@@ -63,13 +81,12 @@ export default function ChatClient({ threadId, initialMessage }: { threadId: str
         credentials: 'include',
         body: JSON.stringify({
           threadId,
-          message: userMessage
+          message: messageText
         }),
       });
 
       if (!response.body) {
         setIsLoading(false);
-
         return;
       }
 
@@ -123,6 +140,12 @@ export default function ChatClient({ threadId, initialMessage }: { threadId: str
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // 處理提交消息（使用當前輸入框的內容）
+  const handleSubmit = async (): Promise<void> => {
+    if (!input.trim() || isLoading) return;
+    await handleSubmitWithMessage(input.trim());
   };
 
   // 處理按鈕選擇
