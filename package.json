@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev-db": "docker compose up",
+    "clear-db": "docker compose down -v",
     "build": "next build",
     "start": "next start",
     "lint": "next lint --fix"
@@ -42,6 +44,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^16.5.0",
     "eslint": "^9",
     "eslint-config-next": "15.1.7",
     "postcss": "^8",
