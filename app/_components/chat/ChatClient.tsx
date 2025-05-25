@@ -229,7 +229,7 @@ export default function ChatClient({ threadId, initialMessage }: { threadId: str
               {/* 顯示最後一個用戶訊息 */}
               {messagesLeft.length >= 2 && messagesLeft[messagesLeft.length - 2].role === 'user' && (
                 <UserMessage
-                  username={user.username || "知識狂熱士"}
+                  username={user?.username || "知識狂熱士"}
                   time={new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   content={messagesLeft[messagesLeft.length - 2].content}
                   className="mb-4 w-full max-w-[1024px]"

@@ -9,9 +9,9 @@ export async function GET() {
 }
 
 export async function POST() {
-  return new Response(JSON.stringify({ 
+  return new Response(JSON.stringify({
     message: '登出成功！',
-    redirectUrl: '/' 
+    redirectUrl: '/'
   }), {
     status: 200,
     headers: {

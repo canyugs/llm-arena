@@ -18,4 +18,4 @@ export default function DiscordButton({ isDesktop = true, onClose }: DiscordButt
       <span>{isDesktop ? '加入 Discord 社群' : '加入 DC 社群'}</span>
     </a>
   );
-} 
+}

@@ -47,8 +47,10 @@ export default function HomeContent({ newThreadId, hotTopics }: HomeContentProps
         variant: "default",
         duration: 5000,
       });
+
       return;
     }
+
     handleFeatureUnderConstruction();
   };
 

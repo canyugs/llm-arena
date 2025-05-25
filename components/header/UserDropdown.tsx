@@ -33,6 +33,7 @@ export default function UserDropdown({ isDesktop = true, onOpen }: UserDropdownP
     if (!isProfileOpen && onOpen) {
       onOpen(); // 關閉其他選單
     }
+
     setIsProfileOpen(!isProfileOpen);
   };
 
@@ -64,7 +65,7 @@ export default function UserDropdown({ isDesktop = true, onOpen }: UserDropdownP
       </button>
 
       {isProfileOpen && (
-        <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-lg z-50 border">
+        <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-lg py-5 z-50 border">
           {user ? (
             <>
               {/* 使用者資訊區域 */}
@@ -99,9 +100,9 @@ export default function UserDropdown({ isDesktop = true, onOpen }: UserDropdownP
                 >
                   登出
                 </button>
-                <DiscordButton 
-                  isDesktop={isDesktop} 
-                  onClose={() => setIsProfileOpen(false)} 
+                <DiscordButton
+                  isDesktop={isDesktop}
+                  onClose={() => setIsProfileOpen(false)}
                 />
               </div>
             </>
@@ -116,9 +117,9 @@ export default function UserDropdown({ isDesktop = true, onOpen }: UserDropdownP
                 >
                   登入
                 </Link>
-                <DiscordButton 
-                  isDesktop={isDesktop} 
-                  onClose={() => setIsProfileOpen(false)} 
+                <DiscordButton
+                  isDesktop={isDesktop}
+                  onClose={() => setIsProfileOpen(false)}
                 />
               </div>
             </>
@@ -127,4 +128,4 @@ export default function UserDropdown({ isDesktop = true, onOpen }: UserDropdownP
       )}
     </div>
   );
-} 
+}

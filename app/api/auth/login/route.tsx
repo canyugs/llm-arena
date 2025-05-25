@@ -9,4 +9,4 @@ export async function GET() {
   const oauthURL = `https://discord.com/oauth2/authorize?client_id=${process.env.OAUTH_CLIENT_ID}&response_type=code&redirect_uri=${oauthCallbackURLEncoded}&scope=identify+email`;
 
   redirect(oauthURL);
-} 
+}

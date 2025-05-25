@@ -183,7 +183,7 @@ export default function Battle(props: { threadId: string }) {
             }}
             className="flex gap-2 items-center"
           >
-            <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full" />
+            <img src={user?.avatar || '/default-avatar.png'} alt="avatar" className="w-8 h-8 rounded-full" />
             <div className="relative flex-1">
               <Input
                 value={input}
