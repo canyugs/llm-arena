@@ -1,11 +1,11 @@
 import { NextRequest } from "next/server";
 import { ObjectId } from "mongodb";
 import { OpenAI } from "openai";
-import getMongoClient from "@/lib/mongo";
-import { verifyToken } from "@/lib/jwt";
 import { Stream } from "openai/streaming.mjs";
 import { ChatCompletionChunk } from "openai/resources/index.mjs";
-import { BedrockRuntimeClient, ConverseStreamCommand, ConverseStreamCommandOutput, ConverseStreamOutput } from "@aws-sdk/client-bedrock-runtime";
+import { BedrockRuntimeClient, ConverseStreamCommand, ConverseStreamOutput } from "@aws-sdk/client-bedrock-runtime";
+import { verifyToken } from "@/lib/jwt";
+import getMongoClient from "@/lib/mongo";
 
 const getAvailableModels = async () => {
   const mongo = await getMongoClient();
@@ -101,9 +101,11 @@ export async function POST(request: NextRequest) {
             modelId: modelConfig.model.split('@')[1],
             messages: updatedMessages.map((message) => ({ role: message.role, content: [{ text: message.content }] }))
           }));
+
           if (!response.stream) {
             throw new Error(JSON.stringify(response));
           }
+
           streamResponse = {
             type: 'bedrock',
             stream: response.stream
@@ -128,12 +130,12 @@ export async function POST(request: NextRequest) {
         let bedrockStream: AsyncIterable<ConverseStreamOutput> | undefined;
 
         switch (streamResponse.type) {
-          case "openai":
-            openAIStream = streamResponse.stream;
-            break;
-          case "bedrock":
-            bedrockStream = streamResponse.stream;
-            break;
+        case "openai":
+          openAIStream = streamResponse.stream;
+          break;
+        case "bedrock":
+          bedrockStream = streamResponse.stream;
+          break;
         }
 
         let fullResponse = '';
@@ -155,9 +157,11 @@ export async function POST(request: NextRequest) {
         if (bedrockStream) {
           for await (const chunk of bedrockStream) {
             let text = '';
+
             if (chunk.contentBlockDelta?.delta?.reasoningContent?.text) {
               text = chunk.contentBlockDelta.delta.reasoningContent.text;
             }
+
             if (chunk.contentBlockDelta?.delta?.text) {
               text = chunk.contentBlockDelta?.delta?.text;
             }
