@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { ObjectId } from "mongodb";
 import { Toaster } from "@/components/ui/toaster";
 import { verifyToken } from "@/lib/jwt";
@@ -47,40 +46,27 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;
 
-  if (!process.env.OAUTH_CALLBACK_URL) {
-    throw new Error('OAUTH_CALLBACK_URL is not set');
-  }
+  let user = null;
 
-  const oauthCallbackURLEncoded = encodeURIComponent(process.env.OAUTH_CALLBACK_URL)
-  const oauthURL = `https://discord.com/oauth2/authorize?client_id=${process.env.OAUTH_CLIENT_ID}&response_type=code&redirect_uri=${oauthCallbackURLEncoded}&scope=identify+email`
-
-  if (!token) {
-    redirect(oauthURL)
-  }
-
-  let userID;
-
-  try {
-    userID = verifyToken(token)
-  } catch {
-    redirect(oauthURL)
-  }
-
-  const user = await getUserByID(userID);
-
-  if (!user) {
-    redirect(oauthURL)
+  if (token) {
+    try {
+      const userID = verifyToken(token);
+      user = await getUserByID(userID);
+    } catch (error) {
+      // Token 無效，但不重定向，讓使用者留在當前頁面
+      console.log('Invalid token:', error);
+    }
   }
 
   return (
     <html lang="en" className="h-full">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen h-full flex flex-col`}>
-        <UserProvider user={{
+        <UserProvider user={user ? {
           _id: user._id.toString(),
           username: user.username,
           avatar: user.avatar,
           hasAgreedToTerms: user.hasAgreedToTerms || false
-        }}>
+        } : null}>
           <Header />
           <div className="flex-grow">
             {children}

@@ -9,7 +9,7 @@ interface UserProviderProps {
 		username: string;
 		avatar: string;
 		hasAgreedToTerms?: boolean;
-	}
+	} | null;
 	readonly children: ReactNode;
 }
 

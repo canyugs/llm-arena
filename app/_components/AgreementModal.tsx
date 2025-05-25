@@ -19,9 +19,9 @@ export default function AgreementModal() {
 
   useEffect(() => {
     // Check if user has already agreed from user object
-    const hasAgreed = user.hasAgreedToTerms;
+    const hasAgreed = user?.hasAgreedToTerms;
 
-    if (!hasAgreed) {
+    if (user && !hasAgreed) {
       setOpen(true);
     }
   }, [user]);
@@ -33,7 +33,7 @@ export default function AgreementModal() {
   }, [currentView]);
 
   const handleAgree = async () => {
-    if (!canAgree || isSubmitting) return;
+    if (!canAgree || isSubmitting || !user) return;
     setIsSubmitting(true);
 
     try {

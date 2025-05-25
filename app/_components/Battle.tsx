@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from "react";
-import { redirect } from "next/navigation";
+import Image from "next/image";
 import { CardsChat } from "@/components/cards/chat";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -161,17 +161,21 @@ export default function Battle(props: { threadId: string }) {
   };
 
   return (
-    <div className="flex flex-col flex-grow h-full">
-      <div className="w-full flex flex-col md:flex-row flex-1 flex-grow overflow-hidden">
-        <div className="w-full h-full overflow-y-auto border-2 md:w-1/2 md:border-1 relative">
-          <CardsChat messages={messagesLeft} title="模型 A" />
+    <div className="w-full h-full relative">
+      <div className="flex flex-col h-full">
+        <div className="flex-1 overflow-auto p-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white rounded-xl p-4 shadow-sm">
+              <h2 className="text-lg font-semibold mb-2 text-center">AI 1號</h2>
+              <CardsChat messages={messagesLeft} title="模型 A" />
+            </div>
+            <div className="bg-white rounded-xl p-4 shadow-sm">
+              <h2 className="text-lg font-semibold mb-2 text-center">AI 2號</h2>
+              <CardsChat messages={messagesRight} title="模型 B" />
+            </div>
+          </div>
         </div>
-        <div className="w-full h-full overflow-y-auto border-2 md:w-1/2 md:border-1 relative">
-          <CardsChat messages={messagesRight} title="模型 B" />
-        </div>
-      </div>
-      <div className="w-full flex justify-center">
-        <div className="w-full md:w-[800px] bg-white hover:shadow-2xl shadow-xl transition-all rounded-xl p-2">
+        <div className="p-4 border-t bg-white">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -179,50 +183,69 @@ export default function Battle(props: { threadId: string }) {
             }}
             className="flex gap-2 items-center"
           >
-            <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full" />
-            <Input
-              value={input}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
-              placeholder={isLoading ? "AI 正在回答中..." : "輸入你想要問 AI 的問題 ..."}
-              disabled={isLoading}
-            />
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "處理中..." : "送出"}
-            </Button>
+            <img src={user?.avatar || '/default-avatar.png'} alt="avatar" className="w-8 h-8 rounded-full" />
+            <div className="relative flex-1">
+              <Input
+                value={input}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
+                placeholder={isLoading ? "AI 正在回答中..." : "輸入你想要問 AI 的問題 ..."}
+                disabled={isLoading}
+                className="pr-10"
+              />
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2"
+              >
+                <Image
+                  src="/icons/chat/send.svg"
+                  alt="Send"
+                  width={24}
+                  height={24}
+                />
+              </button>
+            </div>
           </form>
-          <div className="mt-3 flex flex-col gap-2">
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-2 items-center">
+          <div className="mt-4">
+            <h3 className="text-center font-medium mb-4">您覺得哪個回覆比較好？</h3>
+            <div className="flex justify-center gap-4 mb-4">
               <Button
                 onClick={() => { handleSubmitResult('A_IS_BETTER') }}
                 variant="outline"
-                className="w-full"
+                className="flex items-center gap-2 px-4 py-2 rounded-full"
                 disabled={isLoading}
               >
-                👈 模型 A 比較讚
+                <Image src="/icons/chat/thumb-left.svg" alt="Left" width={20} height={20} />
+                <span>一號比較好</span>
               </Button>
               <Button
                 onClick={() => { handleSubmitResult('B_IS_BETTER') }}
                 variant="outline"
-                className="w-full"
+                className="flex items-center gap-2 px-4 py-2 rounded-full"
                 disabled={isLoading}
               >
-                👉 模型 B 比較讚
+                <span>二號比較好</span>
+                <Image src="/icons/chat/thumb-right.svg" alt="Right" width={20} height={20} />
               </Button>
+            </div>
+            <div className="flex justify-center gap-4">
               <Button
                 onClick={() => { handleSubmitResult('TIE') }}
                 variant="outline"
-                className="w-full"
+                className="flex items-center gap-2 px-4 py-2 rounded-full"
                 disabled={isLoading}
               >
-                🤝 平手
+                <Image src="/icons/chat/tie.svg" alt="Tie" width={20} height={20} />
+                <span>平手</span>
               </Button>
               <Button
                 onClick={() => { handleSubmitResult('BOTH_BAD') }}
                 variant="outline"
-                className="w-full"
+                className="flex items-center gap-2 px-4 py-2 rounded-full"
                 disabled={isLoading}
               >
-                👎 兩個都很爛
+                <Image src="/icons/chat/badface.svg" alt="Bad" width={20} height={20} />
+                <span>都不好</span>
               </Button>
               <Button
                 onClick={() => {
@@ -238,52 +261,48 @@ export default function Battle(props: { threadId: string }) {
                   setShowUserAnswer(true);
                 }}
                 variant="outline"
-                className="w-full"
+                className="flex items-center gap-2 px-4 py-2 rounded-full"
                 disabled={isLoading}
               >
-                ✍️ 提供正確答案
-              </Button>
-              <Button
-                onClick={() => { redirect('/') }}
-                variant="outline"
-                type="button"
-                disabled={isLoading}
-                className="w-full"
-              >
-                🥊 開始新對決
+                <Image src="/icons/chat/write.svg" alt="Write" width={20} height={20} />
+                <span>提供正確答案</span>
               </Button>
             </div>
-            {showUserAnswer && (
-              <div className="mt-3">
-                <textarea
-                  value={userAnswer}
-                  onChange={(e) => setUserAnswer(e.target.value)}
-                  placeholder="請提供您的答案..."
-                  className="w-full p-2 border rounded-md min-h-[100px]"
-                  disabled={isLoading}
-                />
-                <div className="flex justify-end mt-2">
-                  <Button
-                    onClick={() => { setShowUserAnswer(false); setUserAnswer(''); }}
-                    variant="outline"
-                    className="mr-2"
-                    disabled={isLoading}
-                  >
-                    取消
-                  </Button>
-                  <Button
-                    onClick={() => { handleSubmitUserAnswer(); }}
-                    disabled={isLoading || !userAnswer.trim()}
-                  >
-                    送出答案
-                  </Button>
-                </div>
-              </div>
-            )}
           </div>
+          {showUserAnswer && (
+            <div className="mt-5 bg-gray-50 p-4 rounded-lg">
+              <h3 className="font-medium mb-2">提供您的正確答案</h3>
+              <textarea
+                value={userAnswer}
+                onChange={(e) => setUserAnswer(e.target.value)}
+                placeholder="請提供您的答案..."
+                className="w-full p-3 border rounded-lg min-h-[120px] focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={isLoading}
+              />
+              <div className="flex justify-end mt-3 gap-2">
+                <Button
+                  onClick={() => { setShowUserAnswer(false); setUserAnswer(''); }}
+                  variant="outline"
+                  className="rounded-full"
+                  disabled={isLoading}
+                >
+                  取消
+                </Button>
+                <Button
+                  onClick={() => { handleSubmitUserAnswer(); }}
+                  disabled={isLoading || !userAnswer.trim()}
+                  className="rounded-full bg-blue-500 hover:bg-blue-600"
+                >
+                  <div className="flex items-center gap-2">
+                    <Image src="/icons/chat/share.svg" alt="Share" width={16} height={16} />
+                    <span>送出答案</span>
+                  </div>
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
     </div>
   );
 }
