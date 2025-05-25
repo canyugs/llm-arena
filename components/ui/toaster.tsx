@@ -14,10 +14,26 @@ export function Toaster() {
   const { toasts } = useToast()
 
   return (
-    <ToastProvider>
+    <ToastProvider duration={3000}>
       {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
-          <Toast key={id} {...props}>
+          <Toast 
+            key={id} 
+            {...props}
+            onOpenChange={(open) => {
+              // 處理手機版焦點問題，防止 toast 不會自動消失
+              if (!open) {
+                const viewport = document.getElementById("toast-viewport");
+                if (viewport) {
+                  viewport.blur();
+                }
+              }
+              // 呼叫原本的 onOpenChange
+              if (props.onOpenChange) {
+                props.onOpenChange(open);
+              }
+            }}
+          >
             <div className="grid gap-1">
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && (
@@ -29,7 +45,7 @@ export function Toaster() {
           </Toast>
         )
       })}
-      <ToastViewport />
+      <ToastViewport id="toast-viewport" />
     </ToastProvider>
   )
 }
