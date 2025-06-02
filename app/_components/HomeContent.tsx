@@ -160,7 +160,7 @@ export default function HomeContent({ newThreadId, hotTopics }: HomeContentProps
             {hotTopics.map((topic) => (
               <div
                 key={topic.id}
-                onClick={handleLoginRequired}
+                onClick={() => user ? handleSubmit(topic.title) : handleLoginRequired()}
                 className="block bg-white rounded-xl p-4 hover:shadow-md transition-shadow duration-200 border border-gray-100 shadow-sm md:shadow-none cursor-pointer"
               >
                 <div className="md:flex md:justify-between md:items-center">

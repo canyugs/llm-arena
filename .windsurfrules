@@ -1,0 +1,65 @@
+# LLM Arena Development Rules
+
+## Code Style & Organization
+
+### General
+- Follow the Airbnb Style Guide for code formatting
+- Use PascalCase for React component file names (e.g., UserCard.tsx, not user-card.tsx)
+- Prefer named exports for components
+- Follow Next.js patterns and use the App Router
+- Correctly determine when to use server vs. client components in Next.js
+
+### Styling
+- Use Tailwind CSS for styling
+- Use Shadcn UI components based on Radix UI primitives
+- Maintain consistent spacing and component styling
+
+### Data & Forms
+- Use TanStack Query (react-query) for frontend data fetching
+- Use React Hook Form for form handling
+- Use Zod for validation
+
+## Software Development Principles
+
+### Separation of Concerns
+- Organize UI elements into reusable components
+- Maintain clear separation between app logic, components, and utilities
+- Use React Context for state management across components
+
+### Single Responsibility Principle
+- Create small, focused utility files (e.g., jwt.ts, mongo.ts)
+- Each API route should handle a specific functionality
+- Design UI components with specific, well-defined purposes
+
+### DRY (Don't Repeat Yourself)
+- Abstract common UI elements into reusable components
+- Extract common operations into utility functions
+- Manage shared state through context providers
+
+### Error Handling
+- Implement proper error handling in API routes
+- Use toast notifications for user feedback on errors
+- Validate required environment variables
+
+### Progressive Enhancement
+- Use feature flags for in-development functionality
+- Implement mobile-first responsive design
+- Provide fallbacks for when certain features are unavailable
+
+## Git Workflow
+
+### Commit Style
+- Follow Conventional Commits specification:
+  - feat: A new feature or enhancement
+  - fix: A bug fix
+  - refactor: Code changes that neither fix bugs nor add features
+  - docs: Documentation changes
+  - style: Changes that don't affect code functionality
+  - test: Adding or correcting tests
+  - chore: Changes to build process or auxiliary tools
+- Include detailed descriptions for complex changes
+
+### Branch Strategy
+- Create feature branches from main
+- Use pull requests to merge features back to main
+- Maintain a clean commit history
