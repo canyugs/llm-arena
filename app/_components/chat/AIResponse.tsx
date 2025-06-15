@@ -1,5 +1,10 @@
 "use client";
 
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
+
 // AI 回應元件
 export type AIResponseProps = {
   number: string; // AI 編號，例如 "1號" 或 "2號"
@@ -19,10 +24,13 @@ export const AIResponse = ({
           AI {number}
         </div>
       </div>
-      <div className="p-4 flex-1 overflow-y-auto">
-        <p className="text-sm text-gray-700">
+      <div className="p-4 flex-1 overflow-y-auto prose prose-sm max-w-none text-sm text-gray-700">
+        <ReactMarkdown 
+          remarkPlugins={[remarkGfm]} 
+          rehypePlugins={[rehypeRaw, rehypeSanitize]}
+        >
           {content}
-        </p>
+        </ReactMarkdown>
       </div>
     </div>
   );
