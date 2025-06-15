@@ -43,7 +43,7 @@ export default function AIResponseContainer() {
       </div>
 
       {/* Desktop view - side by side */}
-      <div className="hidden md:flex flex-row gap-4 w-full">
+      <div id="desktop-ai-response-container" className="hidden md:flex flex-row gap-4 w-full">
         {/* AI 1 response */}
         <div className="w-1/2">
           <AIResponse

@@ -1,0 +1,12 @@
+# 實作對話結果分享功能	
+
+閱讀 app/_components/chat/UserMessage.tsx
+幫按鈕 #user-message-share-button 實作圖片分享的功能
+
+分享截圖 UI popup 設計切版,切版參考
+./share-layout-desktop.png
+./share-layout-mobile.png
+
+實作 popup 視窗、圖卡樣式與「下載圖片」按鈕
+實作下載行為（html2canvas）	實作圖卡轉圖片與下載流程
+
