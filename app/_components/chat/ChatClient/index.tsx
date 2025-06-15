@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useUser } from '@/app/contexts/UserContext';
 import { UserMessage } from '../UserMessage';
 import { AnswerSidebar } from '../AnswerSidebar';
@@ -26,7 +26,47 @@ export default function ChatClient({ threadId, initialMessage }: { threadId: str
     setIsLoading 
   } = useChatMessages();
 
-  // 移除 GET 請求的 useEffect，歷史會在 POST 時一併處理
+  // 頁面載入時載入歷史對話（如果有 threadId 且沒有 initialMessage）
+  useEffect(() => {
+    async function loadExistingHistory() {
+      // 如果有 initialMessage，表示這是新對話，不需要載入歷史
+      if (initialMessage) {
+        console.log('[Client] Skipping history load - has initialMessage');
+        return;
+      }
+      
+      // 如果已經有訊息或正在載入，不重複載入
+      if (messagesLeft.length > 0 || messagesRight.length > 0 || isLoading) {
+        return;
+      }
+      
+      console.log('[Client] Loading existing history for threadId:', threadId);
+      
+      try {
+        // 使用一個特殊的 API 來只載入歷史，不發送新訊息
+        const response = await fetch('/api/chat/history', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ threadId })
+        });
+        
+        if (response.ok) {
+          const { messagesLeft: left, messagesRight: right } = await response.json();
+          console.log('[Client] History loaded:', { leftCount: left.length, rightCount: right.length });
+          
+          if (left.length > 0 || right.length > 0) {
+            setMessagesLeft(left.map((msg: {role: string, content: string}) => ({ role: msg.role as 'user' | 'assistant', content: msg.content })));
+            setMessagesRight(right.map((msg: {role: string, content: string}) => ({ role: msg.role as 'user' | 'assistant', content: msg.content })));
+          }
+        }
+      } catch (error) {
+        console.log('[Client] Error loading history:', error);
+      }
+    }
+    
+    loadExistingHistory();
+  }, [threadId, initialMessage, messagesLeft.length, messagesRight.length, isLoading]);
   
   const { 
     input, 
