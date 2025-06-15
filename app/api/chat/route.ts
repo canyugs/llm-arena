@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
           throw new Error(`Model configuration not found for model ${modelId}`);
         }
 
-      const messages = thread[index === 0 ? 'modelAMessages' : 'modelBMessages'] || [];
+      const messages = thread[index === 0 ? 'model1Messages' : 'model2Messages'] || [];
         const updatedMessages = [...messages, { role: 'user', content: message } as { role: 'user' | 'assistant', content: string }];
 
         let streamResponse: StreamResponse;
@@ -212,8 +212,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ messagesLeft: [], messagesRight: [] });
   }
   return NextResponse.json({
-    messagesLeft: thread.modelAMessages || [],
-    messagesRight: thread.modelBMessages || []
+    messagesLeft: thread.model1Messages || [],
+    messagesRight: thread.model2Messages || []
   });
 }
 
@@ -275,7 +275,7 @@ async function updateThreadMessages(
       throw new Error('Thread not found');
     }
 
-    const field = modelId === find.selectedModels[0] ? 'modelAMessages' : 'modelBMessages';
+    const field = modelId === find.selectedModels[0] ? 'model1Messages' : 'model2Messages';
 
     await threads.updateOne(
       { _id: threadID },
@@ -291,8 +291,8 @@ interface ThreadDocument {
   _id: ObjectId;
   userID: ObjectId;
   selectedModels: string[];
-  modelAMessages: { role: 'user' | 'assistant'; content: string }[];
-  modelBMessages: { role: 'user' | 'assistant'; content: string }[];
+  model1Messages: { role: 'user' | 'assistant'; content: string }[];
+  model2Messages: { role: 'user' | 'assistant'; content: string }[];
 }
 
 async function getThreadMessages(threadID: ObjectId) {
