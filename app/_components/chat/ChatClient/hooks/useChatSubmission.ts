@@ -68,6 +68,14 @@ export function useChatSubmission({
     
     try {
       await fetchChatResponse(threadId, messageText, {
+        onHistoryLoaded: (left, right) => {
+          // 如果收到歷史訊息，先設定歷史，再加上新的用戶訊息
+          if (left.length > 0 || right.length > 0) {
+            console.log('[Client] Setting history and current message');
+            setMessagesLeft([...left.map(msg => ({ role: msg.role as 'user' | 'assistant', content: msg.content })), newUserMessage, loadingMessage]);
+            setMessagesRight([...right.map(msg => ({ role: msg.role as 'user' | 'assistant', content: msg.content })), newUserMessage, loadingMessage]);
+          }
+        },
         onModel1Update: (content) => {
           setMessagesLeft(prev => [
             ...prev.slice(0, -1),

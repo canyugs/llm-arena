@@ -3,7 +3,8 @@ import { VoteResult } from '../../types';
 export async function fetchChatResponse(threadId: string, message: string, callbacks: {
   onModel1Update: (content: string) => void,
   onModel2Update: (content: string) => void,
-  onComplete: () => void
+  onComplete: () => void,
+  onHistoryLoaded?: (messagesLeft: Array<{role: string, content: string}>, messagesRight: Array<{role: string, content: string}>) => void
 }) {
   const response = await fetch('/api/chat', {
     method: 'POST',
@@ -41,6 +42,11 @@ export async function fetchChatResponse(threadId: string, message: string, callb
         const data = JSON.parse(line);
         
         switch (data.type) {
+          case 'history':
+            // 處理歷史訊息
+            console.log('[Client] Received history:', { leftCount: data.messagesLeft.length, rightCount: data.messagesRight.length });
+            callbacks.onHistoryLoaded?.(data.messagesLeft, data.messagesRight);
+            break;
           case 'model1':
             openaiResponse += data.content;
             // 每次收到新的內容片段時，即時更新 UI

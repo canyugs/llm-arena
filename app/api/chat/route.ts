@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { ObjectId } from "mongodb";
 import { OpenAI } from "openai";
 import { Stream } from "openai/streaming.mjs";
@@ -23,9 +23,11 @@ const getAvailableModels = async () => {
 }
 
 export async function POST(request: NextRequest) {
+  console.log('[API] POST /api/chat - Request started');
   const { threadId, message } = await request.json();
+  console.log('[API] Request data:', { threadId, messageLength: message?.length });
+  
   const cookies = request.cookies;
-
   const token = cookies.get('token')?.value;
 
   if (!token) {
@@ -48,21 +50,41 @@ export async function POST(request: NextRequest) {
 
   const threadID = new ObjectId(threadId);
 
+  console.log('[API] Getting thread messages for:', threadID.toString());
   let thread = await getThreadMessages(threadID);
 
   if (!thread) {
+    console.log('[API] Thread not found, creating new thread');
     const selectedModels = await selectRandomModels();
+    console.log('[API] Selected models:', selectedModels);
     await saveThreadModels(threadID, selectedModels, userID);
     thread = await getThreadMessages(threadID);
   }
 
   if (!thread) {
+    console.log('[API] ERROR: Thread not found and failed to create new');
     return new Response('Thread not found and failed to create new', { status: 404 });
   }
+
+  console.log('[API] Thread loaded successfully:', { 
+    selectedModels: thread.selectedModels,
+    model1MessagesCount: thread.model1Messages?.length || 0,
+    model2MessagesCount: thread.model2Messages?.length || 0
+  });
 
   const encoder = new TextEncoder();
   const { readable, writable } = new TransformStream();
   const writer = writable.getWriter();
+
+  // 立即發送歷史訊息（如果有的話）
+  if (thread.model1Messages?.length > 0 || thread.model2Messages?.length > 0) {
+    console.log('[API] Sending existing history');
+    await writer.write(encoder.encode(JSON.stringify({
+      type: 'history',
+      messagesLeft: thread.model1Messages || [],
+      messagesRight: thread.model2Messages || []
+    }) + '\n'));
+  }
 
   const updateThread = async (modelId: string, fullResponse: string) => {
     await updateThreadMessages(threadID, modelId, { role: 'assistant', content: fullResponse }, userID);
@@ -74,16 +96,21 @@ export async function POST(request: NextRequest) {
 
   (async () => {
     try {
+      console.log('[API] Starting model processing');
       const availableModels = await getAvailableModels();
+      console.log('[API] Available models count:', availableModels.length);
 
       const modelPromises = thread.selectedModels.map(async (modelId: string, index: number) => {
+        console.log(`[API] Processing model ${index + 1}/${thread.selectedModels.length}:`, modelId);
         const modelConfig = availableModels.find((model) => model.model === modelId);
 
         if (!modelConfig) {
+          console.log(`[API] ERROR: Model configuration not found for model ${modelId}`);
           throw new Error(`Model configuration not found for model ${modelId}`);
         }
 
-      const messages = thread[index === 0 ? 'model1Messages' : 'model2Messages'] || [];
+        const messages = thread[index === 0 ? 'model1Messages' : 'model2Messages'] || [];
+        console.log(`[API] Model ${modelId} existing messages count:`, messages.length);
         const updatedMessages = [...messages, { role: 'user', content: message } as { role: 'user' | 'assistant', content: string }];
 
         let streamResponse: StreamResponse;
@@ -141,20 +168,31 @@ export async function POST(request: NextRequest) {
         let fullResponse = '';
 
         if (openAIStream) {
+          console.log(`[API] Starting OpenAI stream for model: ${modelId}`);
+          let chunkCount = 0;
           for await (const chunk of openAIStream) {
             const text = chunk.choices[0]?.delta.content;
 
             if (text) {
+              chunkCount++;
               fullResponse += text;
+              const responseType = modelId === thread.selectedModels[0] ? 'model1' : 'model2';
               await writer.write(encoder.encode(JSON.stringify({
-                type: modelId === thread.selectedModels[0] ? 'model1' : 'model2',
+                type: responseType,
                 content: text
               }) + '\n'));
+              
+              if (chunkCount % 10 === 0) {
+                console.log(`[API] Model ${modelId} - Chunk ${chunkCount}, Response length: ${fullResponse.length}`);
+              }
             }
           }
+          console.log(`[API] Model ${modelId} OpenAI stream completed. Total chunks: ${chunkCount}, Final response length: ${fullResponse.length}`);
         }
 
         if (bedrockStream) {
+          console.log(`[API] Starting Bedrock stream for model: ${modelId}`);
+          let chunkCount = 0;
           for await (const chunk of bedrockStream) {
             let text = '';
 
@@ -167,28 +205,40 @@ export async function POST(request: NextRequest) {
             }
 
             if (text) {
+              chunkCount++;
               fullResponse += text;
+              const responseType = modelId === thread.selectedModels[0] ? 'model1' : 'model2';
               await writer.write(encoder.encode(JSON.stringify({
-                type: modelId === thread.selectedModels[0] ? 'model1' : 'model2',
+                type: responseType,
                 content: text
               }) + '\n'));
+              
+              if (chunkCount % 10 === 0) {
+                console.log(`[API] Model ${modelId} - Chunk ${chunkCount}, Response length: ${fullResponse.length}`);
+              }
             }
           }
+          console.log(`[API] Model ${modelId} Bedrock stream completed. Total chunks: ${chunkCount}, Final response length: ${fullResponse.length}`);
         }
 
         await updateThread(modelId, fullResponse);
+        console.log(`[API] Model ${modelId} processing completed. Final response saved to database.`);
 
         return { modelId, done: true };
       });
 
+      console.log('[API] Waiting for all model responses to complete...');
       await Promise.all(responsePromises);
+      console.log('[API] All model responses completed. Closing writer.');
       await writer.close();
 
-    } catch {
+    } catch (error) {
+      console.log('[API] ERROR in model processing:', error);
       await writer.close();
     }
   })();
 
+  console.log('[API] Returning streaming response');
   return new Response(readable, {
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
@@ -196,26 +246,7 @@ export async function POST(request: NextRequest) {
   });
 }
 
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const threadId = searchParams.get('threadId');
-  if (!threadId) {
-    return NextResponse.json({ messagesLeft: [], messagesRight: [] });
-  }
-  let thread = null;
-  try {
-    thread = await getThreadMessages(new ObjectId(threadId));
-  } catch {
-    thread = null;
-  }
-  if (!thread) {
-    return NextResponse.json({ messagesLeft: [], messagesRight: [] });
-  }
-  return NextResponse.json({
-    messagesLeft: thread.model1Messages || [],
-    messagesRight: thread.model2Messages || []
-  });
-}
+// GET API 已移除 - 歷史訊息現在通過 POST API 一併處理
 
 function shuffle<T>(array: T[]): T[] {
   const arr = [...array];
@@ -307,6 +338,9 @@ async function getThreadMessages(threadID: ObjectId) {
     }
 
     return thread;
+  } catch (error) {
+    console.log('[DB] Error getting thread messages:', error);
+    return null;
   } finally {
     await mongo.close();
   }

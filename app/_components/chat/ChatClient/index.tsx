@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useUser } from '@/app/contexts/UserContext';
 import { UserMessage } from '../UserMessage';
 import { AnswerSidebar } from '../AnswerSidebar';
@@ -26,21 +26,7 @@ export default function ChatClient({ threadId, initialMessage }: { threadId: str
     setIsLoading 
   } = useChatMessages();
 
-  useEffect(() => {
-    async function loadHistory() {
-      try {
-        const res = await fetch(`/api/chat?threadId=${threadId}`, { credentials: 'include' });
-        if (!res.ok) return;
-        const { messagesLeft: left, messagesRight: right } = await res.json();
-        if (!messagesLeft.length && !messagesRight.length) {
-          setMessagesLeft(left);
-          setMessagesRight(right);
-        }
-      } catch {
-      }
-    }
-    loadHistory();
-  }, [threadId, messagesLeft.length, messagesRight.length, setMessagesLeft, setMessagesRight]);
+  // 移除 GET 請求的 useEffect，歷史會在 POST 時一併處理
   
   const { 
     input, 
