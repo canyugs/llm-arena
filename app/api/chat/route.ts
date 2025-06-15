@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { OpenAI } from "openai";
 import { Stream } from "openai/streaming.mjs";
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
           throw new Error(`Model configuration not found for model ${modelId}`);
         }
 
-        const messages = thread[index === 0 ? 'model1Messages' : 'model2Messages'] || [];
+      const messages = thread[index === 0 ? 'modelAMessages' : 'modelBMessages'] || [];
         const updatedMessages = [...messages, { role: 'user', content: message } as { role: 'user' | 'assistant', content: string }];
 
         let streamResponse: StreamResponse;
@@ -196,6 +196,27 @@ export async function POST(request: NextRequest) {
   });
 }
 
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const threadId = searchParams.get('threadId');
+  if (!threadId) {
+    return NextResponse.json({ messagesLeft: [], messagesRight: [] });
+  }
+  let thread = null;
+  try {
+    thread = await getThreadMessages(new ObjectId(threadId));
+  } catch {
+    thread = null;
+  }
+  if (!thread) {
+    return NextResponse.json({ messagesLeft: [], messagesRight: [] });
+  }
+  return NextResponse.json({
+    messagesLeft: thread.modelAMessages || [],
+    messagesRight: thread.modelBMessages || []
+  });
+}
+
 function shuffle<T>(array: T[]): T[] {
   const arr = [...array];
 
@@ -270,8 +291,8 @@ interface ThreadDocument {
   _id: ObjectId;
   userID: ObjectId;
   selectedModels: string[];
-  model1Messages: { role: 'user' | 'assistant', content: string }[];
-  model2Messages: { role: 'user' | 'assistant', content: string }[];
+  modelAMessages: { role: 'user' | 'assistant'; content: string }[];
+  modelBMessages: { role: 'user' | 'assistant'; content: string }[];
 }
 
 async function getThreadMessages(threadID: ObjectId) {

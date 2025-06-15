@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useUser } from '@/app/contexts/UserContext';
 import { UserMessage } from '../UserMessage';
 import { AnswerSidebar } from '../AnswerSidebar';
@@ -25,6 +25,22 @@ export default function ChatClient({ threadId, initialMessage }: { threadId: str
     setMessagesRight, 
     setIsLoading 
   } = useChatMessages();
+
+  useEffect(() => {
+    async function loadHistory() {
+      try {
+        const res = await fetch(`/api/chat?threadId=${threadId}`, { credentials: 'include' });
+        if (!res.ok) return;
+        const { messagesLeft: left, messagesRight: right } = await res.json();
+        if (!messagesLeft.length && !messagesRight.length) {
+          setMessagesLeft(left);
+          setMessagesRight(right);
+        }
+      } catch {
+      }
+    }
+    loadHistory();
+  }, [threadId, messagesLeft.length, messagesRight.length, setMessagesLeft, setMessagesRight]);
   
   const { 
     input, 
@@ -76,7 +92,7 @@ export default function ChatClient({ threadId, initialMessage }: { threadId: str
         
         {/* Main content container */}
         <div className="container mx-auto px-4 mt-6 mb-20 md:mb-0">
-          <div className="bg-[#F4F9FF] rounded-lg p-6 flex flex-col items-center">
+          <div className="bg-[#F4F9FF] rounded-lg p-4 flex flex-col items-center">
             {messagesLeft.length === 0 ? (
               // 初始狀態顯示歡迎訊息
               <ChatHeader showWelcome={true} />
