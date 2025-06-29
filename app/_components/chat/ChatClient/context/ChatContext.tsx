@@ -14,12 +14,12 @@ interface ChatContextType {
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
-export function ChatProvider({ 
-  children, 
-  value 
-}: { 
-  children: ReactNode; 
-  value: ChatContextType 
+export function ChatProvider({
+  children,
+  value
+}: {
+  children: ReactNode;
+  value: ChatContextType
 }) {
   return (
     <ChatContext.Provider value={value}>
@@ -30,8 +30,10 @@ export function ChatProvider({
 
 export function useChatContext() {
   const context = useContext(ChatContext);
+
   if (context === undefined) {
     throw new Error('useChatContext must be used within a ChatProvider');
   }
+
   return context;
 }
