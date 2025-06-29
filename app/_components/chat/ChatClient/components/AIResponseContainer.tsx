@@ -7,11 +7,10 @@ export default function AIResponseContainer() {
   const { messagesLeft, messagesRight } = useChatContext();
   
   return (
-    <div className="w-full max-w-[1024px] overflow-visible">
+    <div id="ai-responses-container" className="w-full max-w-[1024px] overflow-visible">
       {/* Mobile view - horizontal scroll */}
       <div className="md:hidden mb-4 overflow-visible">
         <div
-          id="mobile-ai-response-container"
           className="flex h-[350px] w-screen overflow-x-auto scroll-smooth scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent snap-x snap-mandatory gap-4"
         >
           {/* AI 1 response */}

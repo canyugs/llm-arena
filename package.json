@@ -29,6 +29,7 @@
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
     "eslint-plugin-unused-imports": "^4.1.4",
+    "html-to-image": "^1.11.13",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.475.0",
     "mongodb": "^6.13.1",
@@ -46,6 +47,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/typography": "^0.5.16",
+    "@types/dom-to-image": "^2.6.7",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
