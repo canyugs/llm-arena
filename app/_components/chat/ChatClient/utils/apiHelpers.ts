@@ -13,11 +13,8 @@ export async function fetchChatResponse(
     onHistoryLoaded?: (messagesLeft: Array<{role: string, content: string}>, messagesRight: Array<{role: string, content: string}>) => void
   },
   category?: string,
-  initialContext?: { question: string; source: string; metadata?: any }
+  initialContext?: { question: string; source: string; metadata?: Record<string, unknown> }
 ) {
-  // 生成請求唯一標識
-  const requestKey = `${threadId}-${message}-${Date.now()}`;
-
   // 檢查是否已有相同請求正在進行
   if (activeRequests.has(threadId)) {
     console.log('[API] Duplicate request detected for threadId:', threadId, 'skipping...');
@@ -29,7 +26,7 @@ export async function fetchChatResponse(
   // 標記請求開始
   activeRequests.add(threadId);
   console.log('[API] Starting request for threadId:', threadId);
-  const requestBody: any = {
+  const requestBody: Record<string, unknown> = {
     threadId,
     message
   };

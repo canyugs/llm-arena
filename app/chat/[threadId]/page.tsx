@@ -1,3 +1,4 @@
+import Link from "next/link";
 import ChatClient from "../../_components/chat/ChatClient";
 
 interface ChatPageProps {
@@ -21,12 +22,12 @@ export default async function ChatPage({ params }: ChatPageProps) {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">無效的對話 ID</h1>
           <p className="text-gray-600 mb-4">請檢查 URL 是否正確，或返回首頁開始新對話。</p>
-          <a
+          <Link
             href="/"
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
           >
             返回首頁
-          </a>
+          </Link>
         </div>
       </div>
     );

@@ -12,7 +12,7 @@ interface ThreadDocument {
   initialContext: {
     question: string;
     source: string;
-    metadata?: any;
+    metadata?: Record<string, unknown>;
   };
   selectedModels: string[];
   model1Messages: { role: 'user' | 'assistant'; content: string }[];

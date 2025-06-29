@@ -9,7 +9,7 @@ interface CreateChatRequest {
   initialContext?: {
     initialQuestion: string;
     source: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   };
 }
 

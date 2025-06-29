@@ -71,7 +71,7 @@ export function useVoting({ threadId, onShowAnswerSidebar }: UseVotingProps) {
           description: '請稍後再試'
         });
       }
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: '提交失敗',
         description: '請稍後再試'

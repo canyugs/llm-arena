@@ -139,7 +139,7 @@ export default function ChatClient({ threadId }: { threadId: string }) {
     }
 
     loadThreadData();
-  }, [threadId, isLoading]);
+  }, [threadId, messagesLeft.length, messagesRight.length]);
 
   // 控制回答側邊欄的顯示
   const [showAnswerSidebar, setShowAnswerSidebar] = useState(false);

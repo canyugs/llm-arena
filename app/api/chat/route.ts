@@ -293,7 +293,7 @@ async function saveThreadModels(
   modelIds: string[],
   userID: ObjectId,
   category: string = '一般對話',
-  initialContext: { question: string; source: string; metadata?: any } = {
+  initialContext: { question: string; source: string; metadata?: Record<string, unknown> } = {
     question: '',
     source: 'unknown'
   }
@@ -363,7 +363,7 @@ interface ThreadDocument {
   initialContext: {
     question: string;
     source: string;
-    metadata?: any;
+    metadata?: Record<string, unknown>;
   };
   selectedModels: string[];
   model1Messages: { role: 'user' | 'assistant'; content: string }[];

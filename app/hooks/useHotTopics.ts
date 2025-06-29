@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export interface HotTopic {
   id: string;
@@ -20,7 +20,7 @@ export function useHotTopics(limit: number = 10): UseHotTopicsResult {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchHotTopics = async () => {
+  const fetchHotTopics = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -41,11 +41,11 @@ export function useHotTopics(limit: number = 10): UseHotTopicsResult {
     } finally {
       setLoading(false);
     }
-  };
+  }, [limit]);
 
   useEffect(() => {
     fetchHotTopics();
-  }, [limit]);
+  }, [limit, fetchHotTopics]);
 
   return {
     hotTopics,
