@@ -1,8 +1,8 @@
 "use client";
 import { Download } from "lucide-react";
+import { useRef } from 'react';
 import { useScreenshot } from "./hooks/useScreenshot";
 import { generateShareContent } from "./utils/shareContentGenerator";
-import { useRef } from 'react';
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -31,11 +31,11 @@ export const ShareModal = ({ isOpen, onClose }: ShareModalProps) => {
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
       onClick={onClose}
     >
-      <div 
+      <div
         className="relative bg-white rounded-2xl p-6 w-[95%] max-w-4xl mx-auto shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
@@ -49,8 +49,8 @@ export const ShareModal = ({ isOpen, onClose }: ShareModalProps) => {
 
         {/* Share card preview */}
         <div className="max-h-[50vh] overflow-y-auto mb-6 border rounded-lg p-2">
-          <div 
-            ref={elementRef} 
+          <div
+            ref={elementRef}
             className="bg-[#F4F9FF] p-4 w-full"
             id="share-card-preview"
             dangerouslySetInnerHTML={{
@@ -79,8 +79,8 @@ export const ShareModal = ({ isOpen, onClose }: ShareModalProps) => {
             onClick={handleDownload}
             disabled={loading}
             className={`px-8 py-3 text-white rounded-lg flex items-center justify-center space-x-2 transition-all duration-200 shadow-lg hover:shadow-xl mx-auto w-full sm:w-auto ${
-              loading 
-                ? 'bg-gray-400 cursor-not-allowed' 
+              loading
+                ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
             }`}
           >

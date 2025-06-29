@@ -27,6 +27,7 @@ export const useScreenshot = () => {
       };
 
       const dataUrl = await toPng(element, options);
+
       return dataUrl;
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';

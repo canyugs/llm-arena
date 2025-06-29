@@ -5,6 +5,14 @@ import getMongoClient from "@/lib/mongo";
 interface ThreadDocument {
   _id: ObjectId;
   userID: ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+  category: string;
+  initialContext: {
+    question: string;
+    source: string;
+    metadata?: any;
+  };
   selectedModels: string[];
   model1Messages: { role: 'user' | 'assistant'; content: string }[];
   model2Messages: { role: 'user' | 'assistant'; content: string }[];
@@ -24,6 +32,7 @@ async function getThreadMessages(threadID: ObjectId) {
     return thread;
   } catch (error) {
     console.log('[DB] Error getting thread messages:', error);
+
     return null;
   } finally {
     await mongo.close();
@@ -32,17 +41,19 @@ async function getThreadMessages(threadID: ObjectId) {
 
 export async function POST(request: NextRequest) {
   console.log('[API] POST /api/chat/history - Request started');
-  
+
   try {
     const { threadId } = await request.json();
     console.log('[API] History request for threadId:', threadId);
-    
+
     if (!threadId) {
       console.log('[API] No threadId provided, returning empty messages');
+
       return NextResponse.json({ messagesLeft: [], messagesRight: [] });
     }
-    
+
     let thread = null;
+
     try {
       thread = await getThreadMessages(new ObjectId(threadId));
       console.log('[API] Thread loaded:', thread ? 'found' : 'not found');
@@ -50,26 +61,28 @@ export async function POST(request: NextRequest) {
       console.log('[API] Error loading thread:', error);
       thread = null;
     }
-    
+
     if (!thread) {
       console.log('[API] Thread not found, returning empty messages');
+
       return NextResponse.json({ messagesLeft: [], messagesRight: [] });
     }
-    
+
     const response = {
       messagesLeft: thread.model1Messages || [],
       messagesRight: thread.model2Messages || []
     };
-    
+
     console.log('[API] Returning history:', {
       leftCount: response.messagesLeft.length,
       rightCount: response.messagesRight.length
     });
-    
+
     return NextResponse.json(response);
-    
+
   } catch (error) {
     console.log('[API] Error in history endpoint:', error);
+
     return NextResponse.json({ messagesLeft: [], messagesRight: [] });
   }
-} 
+}

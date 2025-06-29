@@ -13,7 +13,7 @@ export default function ChatHeader({ showWelcome }: ChatHeaderProps) {
       </div>
     );
   }
-  
+
   return (
     <div className="text-center my-6 w-full max-w-[1024px]">
       <h2 id="chat-header-title" className="text-xl font-medium text-gray-800">您覺得哪個回覆比較好？</h2>

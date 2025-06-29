@@ -9,7 +9,7 @@ interface VotingSectionProps {
 
 export default function VotingSection({ onVoteSelect }: VotingSectionProps) {
   const { selectedVote } = useChatContext();
-  
+
   return (
     <>
       {/* Voting buttons - 1號 and 2號 */}

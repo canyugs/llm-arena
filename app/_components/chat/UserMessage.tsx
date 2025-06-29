@@ -47,8 +47,8 @@ export const UserMessage = ({
         <div id="user-message-share-button" className="flex items-center h-full">
           <button
             className={`p-1.5 rounded-full transition-all duration-200 ${
-              isConversationComplete() 
-                ? 'bg-[#E9EBEE] hover:bg-opacity-90 cursor-pointer' 
+              isConversationComplete()
+                ? 'bg-[#E9EBEE] hover:bg-opacity-90 cursor-pointer'
                 : 'bg-gray-200 cursor-not-allowed opacity-50'
             }`}
             onClick={handleShare}
@@ -69,9 +69,9 @@ export const UserMessage = ({
         </div>
       </div>
 
-      <ShareModal 
-        isOpen={isShareModalOpen} 
-        onClose={closeShareModal} 
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={closeShareModal}
       />
     </>
   );

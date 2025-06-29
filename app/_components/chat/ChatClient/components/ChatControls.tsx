@@ -19,7 +19,7 @@ export default function ChatControls({
 }: ChatControlsProps) {
   return (
     <InputBox
-      placeholder={hasVoted ? "輸入你想要問 AI 的問題 ..." : "點一下回覆的評價按鈕就能繼續跟我聊天！"}
+      placeholder={hasVoted ? "開始新的一輪對話 - 輸入你的問題..." : "點一下回覆的評價按鈕就能開啟新的對話！"}
       value={input}
       onChange={(e) => setInput(e.target.value)}
       onSubmit={onSubmit}

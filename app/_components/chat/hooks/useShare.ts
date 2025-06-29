@@ -10,13 +10,13 @@ export const useShare = () => {
   const isConversationComplete = () => {
     // 檢查是否正在載入
     if (isLoading) return false;
-    
+
     // 檢查是否有AI回應
-    const hasLeftResponse = messagesLeft.length > 0 && 
+    const hasLeftResponse = messagesLeft.length > 0 &&
       messagesLeft[messagesLeft.length - 1].role === 'assistant';
-    const hasRightResponse = messagesRight.length > 0 && 
+    const hasRightResponse = messagesRight.length > 0 &&
       messagesRight[messagesRight.length - 1].role === 'assistant';
-    
+
     // 至少要有一個AI回應才能分享
     return hasLeftResponse || hasRightResponse;
   };
@@ -28,8 +28,10 @@ export const useShare = () => {
         description: "請等待AI回應完成後再分享",
         variant: "destructive",
       });
+
       return;
     }
+
     setIsShareModalOpen(true);
   };
 
@@ -43,4 +45,4 @@ export const useShare = () => {
     handleShare,
     closeShareModal
   };
-}; 
+};

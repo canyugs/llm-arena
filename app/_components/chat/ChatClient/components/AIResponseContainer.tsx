@@ -1,11 +1,34 @@
 'use client';
 
+import { useMemo } from 'react';
 import { AIResponse } from '../../AIResponse';
 import { useChatContext } from '../context/ChatContext';
 
 export default function AIResponseContainer() {
   const { messagesLeft, messagesRight } = useChatContext();
-  
+
+  // 調試：追蹤重新渲染
+  console.log('[AIResponseContainer] Rendering with:', {
+    leftCount: messagesLeft.length,
+    rightCount: messagesRight.length,
+    timestamp: new Date().toISOString()
+  });
+
+  // 使用 useMemo 穩定內容計算，避免不必要的重新渲染
+  const leftContent = useMemo(() => {
+    return messagesLeft.length > 0 &&
+           messagesLeft[messagesLeft.length - 1].role === 'assistant'
+      ? messagesLeft[messagesLeft.length - 1].content
+      : "等待您的問題...";
+  }, [messagesLeft]);
+
+  const rightContent = useMemo(() => {
+    return messagesRight.length > 0 &&
+           messagesRight[messagesRight.length - 1].role === 'assistant'
+      ? messagesRight[messagesRight.length - 1].content
+      : "等待您的問題...";
+  }, [messagesRight]);
+
   return (
     <div id="ai-responses-container" className="w-full max-w-[1024px] overflow-visible">
       {/* Mobile view - horizontal scroll */}
@@ -17,12 +40,7 @@ export default function AIResponseContainer() {
           <div className="w-[80vw] max-w-[360px] flex-shrink-0 snap-start">
             <AIResponse
               number="1號"
-              content={
-                messagesLeft.length > 0 &&
-                messagesLeft[messagesLeft.length - 1].role === 'assistant'
-                  ? messagesLeft[messagesLeft.length - 1].content
-                  : "等待您的問題..."
-              }
+              content={leftContent}
             />
           </div>
 
@@ -30,12 +48,7 @@ export default function AIResponseContainer() {
           <div className="w-[80vw] max-w-[360px] flex-shrink-0 snap-start">
             <AIResponse
               number="2號"
-              content={
-                messagesRight.length > 0 &&
-                messagesRight[messagesRight.length - 1].role === 'assistant'
-                  ? messagesRight[messagesRight.length - 1].content
-                  : "等待您的問題..."
-              }
+              content={rightContent}
             />
           </div>
         </div>
@@ -47,9 +60,7 @@ export default function AIResponseContainer() {
         <div className="w-1/2">
           <AIResponse
             number="1號"
-            content={messagesLeft.length > 0 && messagesLeft[messagesLeft.length - 1].role === 'assistant'
-              ? messagesLeft[messagesLeft.length - 1].content
-              : "等待您的問題..."}
+            content={leftContent}
           />
         </div>
 
@@ -57,9 +68,7 @@ export default function AIResponseContainer() {
         <div className="w-1/2">
           <AIResponse
             number="2號"
-            content={messagesRight.length > 0 && messagesRight[messagesRight.length - 1].role === 'assistant'
-              ? messagesRight[messagesRight.length - 1].content
-              : "等待您的問題..."}
+            content={rightContent}
           />
         </div>
       </div>
