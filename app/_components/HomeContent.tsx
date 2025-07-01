@@ -105,6 +105,12 @@ export default function HomeContent() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!user) {
+      // 未登入時直接導向登入頁面，不檢查輸入
+      window.location.href = '/api/auth/login';
+      return;
+    }
+
     if (input.trim()) {
       handleStartNewConversation(input, 'homepage_input');
     }
@@ -112,6 +118,12 @@ export default function HomeContent() {
 
   const handleMobileSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!user) {
+      // 未登入時直接導向登入頁面，不檢查輸入
+      window.location.href = '/api/auth/login';
+      return;
+    }
 
     if (mobileMessage.trim()) {
       handleStartNewConversation(mobileMessage, 'homepage_input');
@@ -141,7 +153,6 @@ export default function HomeContent() {
                       onChange={(e) => setInput(e.target.value)}
                       className="w-full pr-32 py-7 text-base border border-gray-100 bg-white focus-visible:ring-0 focus-visible:ring-offset-0 rounded-lg shadow-sm"
                       placeholder="AI 想聽你說說話......"
-                      required
                     />
                     <Button
                       type="submit"
@@ -167,7 +178,6 @@ export default function HomeContent() {
                   onChange={(e) => setMobileMessage(e.target.value)}
                   className="pr-14 py-3 text-base border border-gray-100 bg-white focus-visible:ring-0 focus-visible:ring-offset-0 rounded-lg"
                   placeholder="AI想聽你說說話!"
-                  required
                 />
                 <Button
                   type="submit"
