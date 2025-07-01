@@ -30,10 +30,6 @@ export default function Header() {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const closeMenu = () => {
-    setIsMenuOpen(false);
-  };
-
   const isActive = (path: string) => {
     return pathname === path;
   };
