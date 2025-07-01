@@ -3,6 +3,7 @@ import { Download } from "lucide-react";
 import { useRef } from 'react';
 import { useScreenshot } from "./hooks/useScreenshot";
 import { generateShareContent } from "./utils/shareContentGenerator";
+import { useChatContext } from "./ChatClient/context/ChatContext";
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -11,7 +12,11 @@ interface ShareModalProps {
 
 export const ShareModal = ({ isOpen, onClose }: ShareModalProps) => {
   const { loading, error, takeScreenshot } = useScreenshot();
+  const { messagesLeft } = useChatContext();
   const elementRef = useRef<HTMLDivElement>(null);
+
+  // Get the original question from the first user message
+  const originalQuestion = messagesLeft.find(msg => msg.role === 'user')?.content || '';
 
   const handleDownload = async () => {
     if (!elementRef.current) return;
@@ -36,7 +41,7 @@ export const ShareModal = ({ isOpen, onClose }: ShareModalProps) => {
       onClick={onClose}
     >
       <div
-        className="relative bg-white rounded-2xl p-6 w-[95%] max-w-4xl mx-auto shadow-2xl"
+        className="relative bg-white rounded-2xl p-6 w-[95%] max-w-5xl mx-auto shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Title */}
@@ -48,13 +53,17 @@ export const ShareModal = ({ isOpen, onClose }: ShareModalProps) => {
         </div>
 
         {/* Share card preview */}
-        <div className="max-h-[50vh] overflow-y-auto mb-6 border rounded-lg p-2">
+        <div className="max-h-[60vh] overflow-y-auto mb-6 border rounded-lg p-2">
           <div
             ref={elementRef}
-            className="bg-[#F4F9FF] p-4 w-full"
+            className="bg-[#F4F9FF] p-4 w-full min-w-[320px]"
             id="share-card-preview"
+            style={{ 
+              minWidth: '100%',
+              width: 'auto'
+            }}
             dangerouslySetInnerHTML={{
-              __html: generateShareContent()
+              __html: generateShareContent(originalQuestion)
             }}
           />
         </div>
