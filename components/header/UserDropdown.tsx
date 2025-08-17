@@ -66,7 +66,8 @@ export default function UserDropdown({ isDesktop = true, onOpen }: UserDropdownP
       </button>
 
       {isProfileOpen && (
-        <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-lg py-5 z-50 border">
+        <div className="absolute mt-2 w-72 max-w-[calc(100vw-1rem)] bg-white rounded-2xl shadow-lg py-5 z-50 border
+                        -left-14 -translate-x-1/2 xs:left-1/2 xs:-translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0">
           {user ? (
             <>
               {/* 使用者資訊區域 */}

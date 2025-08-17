@@ -99,7 +99,7 @@ export default function ChatClient({ threadId }: { threadId: string }) {
         />
 
         {/* Main content container */}
-        <div className="container mx-auto px-4 mt-6 mb-20 md:mb-0">
+        <div className="container mx-auto px-2 sm:px-4 mt-6 mb-20 md:mb-0">
           <div className="bg-[#F4F9FF] rounded-lg p-4 flex flex-col items-center">
             {messagesLeft.length === 0 ? (
               // 初始狀態顯示歡迎訊息
