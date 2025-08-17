@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { ObjectId } from "mongodb";
 import { Toaster } from "@/components/ui/toaster";
 import { verifyToken } from "@/lib/jwt";
-import getMongoClient from "@/lib/mongo";
+import { getDb } from "@/lib/mongo";
 import logger from '@/lib/logger';
 import { UserProvider } from './providers/UserProvider';
 import AgreementModal from './_components/AgreementModal';
@@ -34,13 +34,8 @@ export const metadata: Metadata = {
 };
 
 const getUserByID = async (userID: ObjectId) => {
-  const mongo = await getMongoClient();
-
-  try {
-    return await mongo.db('arena').collection('users').findOne({ _id: userID });
-  } finally {
-    await mongo.close();
-  }
+  const db = await getDb('arena');
+  return await db.collection('users').findOne({ _id: userID });
 }
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
