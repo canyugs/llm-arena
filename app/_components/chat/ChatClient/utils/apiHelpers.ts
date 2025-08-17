@@ -1,14 +1,9 @@
 import logger from '@/lib/logger';
-import { VoteResult } from '../../types';
 import type { ChatStreamEvent } from '@/types/chat';
+import { VoteResult } from '../../types';
 
 // 請求去重：追蹤正在進行的請求
 const activeRequests = new Set<string>();
-
-type ChatStreamEvent =
-  | { type: 'history'; messagesLeft: Array<{ role: string; content: string }>; messagesRight: Array<{ role: string; content: string }> }
-  | { type: 'model1'; content: string }
-  | { type: 'model2'; content: string };
 
 export async function fetchChatResponse(
   threadId: string,
@@ -77,6 +72,7 @@ export async function fetchChatResponse(
 
   // 使用串流讀取回應
   let buffer = '';
+
   while (!done) {
     const { value, done: readerDone } = await reader.read();
     done = readerDone;
