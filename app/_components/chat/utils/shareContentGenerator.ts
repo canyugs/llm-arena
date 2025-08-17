@@ -29,6 +29,25 @@ export const generateShareContent = (originalQuestion?: string): string => {
         .w-1\\/2 { width: 50% !important; }
         .flex-row { display: flex !important; flex-direction: row !important; }
         .gap-4 { gap: 1rem !important; }
+        
+        /* 針對固定寬度的優化 */
+        * { 
+          box-sizing: border-box !important; 
+          word-wrap: break-word !important;
+          overflow-wrap: break-word !important;
+        }
+        
+        /* 確保文字不會溢出 */
+        p, div, span { 
+          max-width: 100% !important; 
+          word-break: break-word !important;
+        }
+        
+        /* 調整圖片大小 */
+        img { 
+          max-width: 100% !important; 
+          height: auto !important; 
+        }
       </style>
       ${questionHtml}${clonedContent}
     `;
