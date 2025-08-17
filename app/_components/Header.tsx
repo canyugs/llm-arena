@@ -58,20 +58,6 @@ export default function Header() {
                 <img src="/icons/nav/chat.svg" alt="Chat" width={20} height={20} />
                 <span>AI對話</span>
               </Link>
-              <Link
-                href="/game"
-                className={`flex items-center space-x-2 px-3 py-1 ${isActive('/game') ? 'text-blue-500 bg-blue-50 rounded-md' : 'text-gray-600 hover:text-blue-500'}`}
-              >
-                <img src="/icons/nav/game.svg" alt="Game" width={20} height={20} />
-                <span>AI遊戲</span>
-              </Link>
-              <Link
-                href="/hot"
-                className={`flex items-center space-x-2 px-3 py-1 ${isActive('/hot') ? 'text-blue-500 bg-blue-50 rounded-md' : 'text-gray-600 hover:text-blue-500'}`}
-              >
-                <img src="/icons/nav/fire.svg" alt="Fire" width={20} height={20} />
-                <span>熱門探索</span>
-              </Link>
             </nav>
           </div>
           <div className="flex items-center space-x-4">
