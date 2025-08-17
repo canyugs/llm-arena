@@ -1,5 +1,5 @@
 import 'server-only';
-import { ObjectId } from 'mongodb';
+import { ObjectId, type UpdateFilter } from 'mongodb';
 import { getDb } from '@/lib/mongo';
 import type { ThreadDocument } from '@/types/chat';
 
@@ -54,16 +54,13 @@ export async function appendThreadMessage(
     throw new Error('Thread not found');
   }
 
-  const field = modelId === find.selectedModels[0] ? 'model1Messages' : 'model2Messages';
+  const fieldName: 'model1Messages' | 'model2Messages' =
+    modelId === find.selectedModels[0] ? 'model1Messages' : 'model2Messages';
 
-  await threads.updateOne(
-    { _id: threadID },
-    {
-      // @ts-expect-error $push is not typed
-      $push: { [field]: message },
-      $set: { updatedAt: new Date() }
-    }
-  );
+  const update: UpdateFilter<ThreadDocument> = {
+    $push: { [fieldName]: message } as unknown as Partial<Record<'model1Messages' | 'model2Messages', typeof message>>,
+    $set: { updatedAt: new Date() }
+  };
+
+  await threads.updateOne({ _id: threadID }, update);
 }
-
-
