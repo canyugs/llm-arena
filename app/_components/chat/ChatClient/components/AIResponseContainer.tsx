@@ -1,14 +1,15 @@
 'use client';
 
 import { useMemo } from 'react';
+import logger from '@/lib/logger';
 import { AIResponse } from '../../AIResponse';
 import { useChatContext } from '../context/ChatContext';
 
 export default function AIResponseContainer() {
   const { messagesLeft, messagesRight } = useChatContext();
 
-  // 調試：追蹤重新渲染
-  console.log('[AIResponseContainer] Rendering with:', {
+  // 調試：追蹤重新渲染（生產環境預設關閉，見 logger 實作）
+  logger.debug('[AIResponseContainer] Rendering with:', {
     leftCount: messagesLeft.length,
     rightCount: messagesRight.length,
     timestamp: new Date().toISOString()
