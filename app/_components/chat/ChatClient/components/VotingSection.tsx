@@ -14,7 +14,7 @@ export default function VotingSection({ onVoteSelect }: VotingSectionProps) {
   return (
     <>
       {/* Voting buttons - 1號 and 2號 */}
-      <div className="flex justify-center gap-4 w-full max-w-[1024px] mt-6">
+      <div className="flex flex-col sm:flex-row justify-center gap-4 w-full max-w-[1024px] mt-6">
         <VoteButton
           icon="/icons/chat/thumb-left.svg"
           alt="Thumb Left"
@@ -34,7 +34,7 @@ export default function VotingSection({ onVoteSelect }: VotingSectionProps) {
       </div>
 
       {/* Additional voting options - 3 buttons */}
-      <div className="grid grid-cols-3 gap-4 w-full max-w-[1024px] mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-[1024px] mt-4">
         <VoteButton
           icon="/icons/chat/tie.svg"
           alt="Tie"
