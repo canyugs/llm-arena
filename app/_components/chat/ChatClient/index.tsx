@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useUser } from '@/app/contexts/UserContext';
-import logger from '@/lib/logger';
 import { UserMessage } from '../UserMessage';
 import { AnswerSidebar } from '../AnswerSidebar';
 import { ChatProvider } from './context/ChatContext';
@@ -113,8 +112,8 @@ export default function ChatClient({ threadId }: { threadId: string }) {
                   // 情況1：有至少2條訊息，顯示倒數第二條（用戶問題）
                   if (messagesLeft.length >= 2 && messagesLeft[messagesLeft.length - 2].role === 'user') {
                     return (
-                    <UserMessage
-                      username={getDisplayUsername(user)}
+                      <UserMessage
+                        username={getDisplayUsername(user)}
                         time={new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         content={messagesLeft[messagesLeft.length - 2].content}
                         className="mb-4 w-full max-w-[1024px]"
@@ -124,8 +123,8 @@ export default function ChatClient({ threadId }: { threadId: string }) {
                   // 情況2：只有1條訊息且是用戶問題，直接顯示
                   else if (messagesLeft.length === 1 && messagesLeft[0].role === 'user') {
                     return (
-                    <UserMessage
-                      username={getDisplayUsername(user)}
+                      <UserMessage
+                        username={getDisplayUsername(user)}
                         time={new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         content={messagesLeft[0].content}
                         className="mb-4 w-full max-w-[1024px]"
@@ -135,8 +134,8 @@ export default function ChatClient({ threadId }: { threadId: string }) {
                   // 情況3：最後一條是用戶訊息（可能正在等待AI回應）
                   else if (messagesLeft.length > 0 && messagesLeft[messagesLeft.length - 1].role === 'user') {
                     return (
-                    <UserMessage
-                      username={getDisplayUsername(user)}
+                      <UserMessage
+                        username={getDisplayUsername(user)}
                         time={new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         content={messagesLeft[messagesLeft.length - 1].content}
                         className="mb-4 w-full max-w-[1024px]"

@@ -23,6 +23,7 @@ const getMongoClient = async (): Promise<MongoClient> => {
 };
 
 export default getMongoClient;
+
 export async function getDb(dbName: string = 'arena') {
   const client = await getMongoClient();
 

@@ -1,9 +1,9 @@
 import 'server-only';
-import { getDb } from '@/lib/mongo';
 import { OpenAI } from 'openai';
 import { BedrockRuntimeClient, ConverseStreamCommand, ConverseStreamOutput } from '@aws-sdk/client-bedrock-runtime';
 import type { Stream } from 'openai/streaming.mjs';
 import type { ChatCompletionChunk } from 'openai/resources/index.mjs';
+import { getDb } from '@/lib/mongo';
 
 export interface ModelConfig {
   model: string;
@@ -67,12 +67,15 @@ export async function getModelTextStream(
     async function* iterator() {
       for await (const chunk of stream) {
         let text = '';
+
         if (chunk.contentBlockDelta?.delta?.reasoningContent?.text) {
           text = chunk.contentBlockDelta.delta.reasoningContent.text;
         }
+
         if (chunk.contentBlockDelta?.delta?.text) {
           text = chunk.contentBlockDelta.delta.text;
         }
+
         if (text) {
           yield text;
         }
@@ -95,5 +98,3 @@ export async function getModelTextStream(
 
   return iterator();
 }
-
-

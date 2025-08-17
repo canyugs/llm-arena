@@ -7,5 +7,3 @@ export function getDisplayUsername(user: User | null): string {
 
   return name && name.length > 0 ? name : '知識狂熱士';
 }
-
-

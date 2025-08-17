@@ -1,7 +1,7 @@
 'use client';
 
-import type { Message } from '../../types';
 import type { ApiMessage } from '@/types/chat';
+import type { Message } from '../../types';
 
 export function mapApiMessagesToClientMessages(apiMessages: ApiMessage[]): Message[] {
   return apiMessages.map((msg) => ({
@@ -9,5 +9,3 @@ export function mapApiMessagesToClientMessages(apiMessages: ApiMessage[]): Messa
     content: msg.content,
   }));
 }
-
-

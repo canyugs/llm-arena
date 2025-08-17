@@ -26,5 +26,3 @@ export function mapLabelToResult(label: VoteLabel | string): VoteResult | null {
     return null;
   }
 }
-
-

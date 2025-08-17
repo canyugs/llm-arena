@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
-import { VoteResult } from '../../types';
 import { submitVoteResult } from '../utils/apiHelpers';
 import { VoteLabels, mapLabelToResult } from '../utils/vote';
 
@@ -32,6 +31,7 @@ export function useVoting({ threadId, onShowAnswerSidebar }: UseVotingProps) {
     // 根據選擇的按鈕，提交相應的結果
     if (text === VoteLabels.iWillAnswer) {
       if (onShowAnswerSidebar) onShowAnswerSidebar();
+
       return;
     }
 
