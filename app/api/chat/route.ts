@@ -1,10 +1,8 @@
 import { NextRequest } from "next/server";
 import { ObjectId } from "mongodb";
-import { OpenAI } from "openai";
 // streaming handled via services/models.getModelTextStream
 import { verifyToken } from "@/lib/jwt";
 import logger from "@/lib/logger";
-import type { ThreadDocument } from "@/types/chat";
 import { getAvailableModels, selectRandomModels, getModelTextStream } from "@/lib/services/models";
 import { appendThreadMessage, getThreadById, saveThreadModels } from "@/lib/services/threads";
 
@@ -162,15 +160,3 @@ export async function POST(request: NextRequest) {
 }
 
 // GET API 已移除 - 歷史訊息現在通過 POST API 一併處理
-
-interface OpenAIStreamResponse {
-  type: 'openai';
-  stream: Stream<ChatCompletionChunk>
-}
-
-interface BedrockStreamResponse {
-  type: 'bedrock';
-  stream: AsyncIterable<ConverseStreamOutput>
-}
-
-type StreamResponse = OpenAIStreamResponse | BedrockStreamResponse;

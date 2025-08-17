@@ -20,9 +20,11 @@ export async function POST(req: NextRequest) {
   // AuthZ first: ensure the request has a valid token
   try {
     const token = req.cookies.get('token')?.value;
+
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
     // Verify token (throws if invalid)
     verifyToken(token);
   } catch {
@@ -45,7 +47,11 @@ export async function POST(req: NextRequest) {
   // AuthZ: ensure the thread belongs to the authenticated user
   try {
     const token = req.cookies.get('token')?.value;
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const userId = verifyToken(token);
+
     if (!thread.userID || !thread.userID.equals(userId)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
