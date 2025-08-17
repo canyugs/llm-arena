@@ -120,7 +120,7 @@ export default function Header() {
                 </Link>
                 <Link
                   href="/game"
-                  className={`flex items-center space-x-3 py-2 px-3 mx-2 ${isActive('/game') ? 'text-blue-500 bg-blue-50 rounded-xl' : 'text-gray-700 hover:text-blue-500 hover:bg-gray-50 rounded-xl'}`}
+                  className={`hidden items-center space-x-3 py-2 px-3 mx-2 ${isActive('/game') ? 'text-blue-500 bg-blue-50 rounded-xl' : 'text-gray-700 hover:text-blue-500 hover:bg-gray-50 rounded-xl'}`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <img src="/icons/nav/game.svg" alt="Game" width={18} height={18} />
@@ -128,7 +128,7 @@ export default function Header() {
                 </Link>
                 <Link
                   href="/hot"
-                  className={`flex items-center space-x-3 py-2 px-3 mx-2 ${isActive('/hot') ? 'text-blue-500 bg-blue-50 rounded-xl' : 'text-gray-700 hover:text-blue-500 hover:bg-gray-50 rounded-xl'}`}
+                  className={`hidden items-center space-x-3 py-2 px-3 mx-2 ${isActive('/hot') ? 'text-blue-500 bg-blue-50 rounded-xl' : 'text-gray-700 hover:text-blue-500 hover:bg-gray-50 rounded-xl'}`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <img src="/icons/nav/fire.svg" alt="Fire" width={18} height={18} />
