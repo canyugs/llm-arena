@@ -6,6 +6,7 @@ import { ObjectId } from "mongodb";
 import { Toaster } from "@/components/ui/toaster";
 import { verifyToken } from "@/lib/jwt";
 import getMongoClient from "@/lib/mongo";
+import logger from '@/lib/logger';
 import { UserProvider } from './providers/UserProvider';
 import AgreementModal from './_components/AgreementModal';
 import Header from './_components/Header';
@@ -54,7 +55,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       user = await getUserByID(userID);
     } catch (error) {
       // Token 無效，但不重定向，讓使用者留在當前頁面
-      console.log('Invalid token:', error);
+      logger.warn('Invalid token:', error);
     }
   }
 

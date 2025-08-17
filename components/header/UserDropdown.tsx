@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useUser } from '@/app/contexts/UserContext';
+import logger from '@/lib/logger';
 import DiscordButton from './DiscordButton';
 
 interface UserDropdownProps {
@@ -51,7 +52,7 @@ export default function UserDropdown({ isDesktop = true, onOpen }: UserDropdownP
         window.location.href = data.redirectUrl;
       }
     } catch (error) {
-      console.error('Logout failed:', error);
+      logger.error('Logout failed:', error);
     }
   };
 
