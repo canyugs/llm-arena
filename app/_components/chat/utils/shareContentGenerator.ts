@@ -4,7 +4,7 @@
 export const generateShareContent = (originalQuestion?: string): string => {
   try {
     // 生成題目部分的 HTML
-    const questionHtml = originalQuestion 
+    const questionHtml = originalQuestion
       ? `<div class="text-center mb-10 mt-6">
            <div class="text-gray-500 text-lg leading-relaxed">${originalQuestion}</div>
          </div>`
@@ -32,10 +32,10 @@ export const generateShareContent = (originalQuestion?: string): string => {
       </style>
       ${questionHtml}${clonedContent}
     `;
-    
+
     return wrappedContent;
-  } catch (error) {
-    console.error('Error generating share content:', error);
+  } catch {
+    // 生成分享內容失敗時，不阻斷流程
 
     return '<div class="text-center text-gray-500 p-10">預覽生成失敗</div>';
   }

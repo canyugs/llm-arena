@@ -1,6 +1,7 @@
 "use client";
 import { Download } from "lucide-react";
 import { useRef } from 'react';
+import logger from "@/lib/logger";
 import { useScreenshot } from "./hooks/useScreenshot";
 import { generateShareContent } from "./utils/shareContentGenerator";
 import { useChatContext } from "./ChatClient/context/ChatContext";
@@ -29,7 +30,7 @@ export const ShareModal = ({ isOpen, onClose }: ShareModalProps) => {
       link.click();
       onClose();
     } catch (err) {
-      console.error('Screenshot failed:', err);
+      logger.error('Screenshot failed:', err);
     }
   };
 
@@ -58,7 +59,7 @@ export const ShareModal = ({ isOpen, onClose }: ShareModalProps) => {
             ref={elementRef}
             className="bg-[#F4F9FF] p-4 w-full min-w-[320px]"
             id="share-card-preview"
-            style={{ 
+            style={{
               minWidth: '100%',
               width: 'auto'
             }}

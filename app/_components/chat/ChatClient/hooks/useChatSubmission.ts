@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import logger from '@/lib/logger';
 import { Message } from '../../types';
 import { fetchChatResponse } from '../utils/apiHelpers';
+import { mapApiMessagesToClientMessages } from '../utils/message';
 import { startNewConversation } from '../../../../utils/conversationStarter';
 
 interface UseChatSubmissionProps {
@@ -30,40 +32,7 @@ export function useChatSubmission({
 
   // 移除了來自 URL 的初始訊息處理邏輯，現在由 ChatClient 直接處理
 
-  const handleSubmit = async () => {
-    // 如果已投票，創建新對話而不是在當前 thread 中繼續
-    if (hasVoted && input.trim()) {
-      try {
-        console.log('[Client] Creating new conversation after voting');
-
-        const config = {
-          question: input.trim(),
-          category: 'general',
-          source: 'post_vote_question',
-          metadata: {
-            previousThreadId: threadId,
-            startedAt: new Date().toISOString()
-          }
-        };
-
-        // 創建新對話
-        const newThreadId = await startNewConversation(config);
-
-        // 導航到新對話頁面
-        router.push(`/chat/${newThreadId}`);
-
-      } catch (error) {
-        console.error('[Client] Failed to create new conversation:', error);
-        // 如果創建新對話失敗，回退到在當前 thread 中繼續
-        await handleSubmitWithMessage(input);
-      }
-    } else {
-      // 未投票或空輸入，在當前 thread 中繼續
-      await handleSubmitWithMessage(input);
-    }
-  };
-
-  const handleSubmitWithMessage = async (messageText: string) => {
+  const handleSubmitWithMessage = useCallback(async (messageText: string) => {
     if (!messageText.trim()) return;
 
     setInput('');
@@ -79,8 +48,8 @@ export function useChatSubmission({
       await fetchChatResponse(threadId, messageText, {
         onHistoryLoaded: (left, right) => {
           if (left.length > 0 || right.length > 0) {
-            setMessagesLeft([...left.map(msg => ({ role: msg.role as 'user' | 'assistant', content: msg.content })), newUserMessage, loadingMessage]);
-            setMessagesRight([...right.map(msg => ({ role: msg.role as 'user' | 'assistant', content: msg.content })), newUserMessage, loadingMessage]);
+            setMessagesLeft([...mapApiMessagesToClientMessages(left), newUserMessage, loadingMessage]);
+            setMessagesRight([...mapApiMessagesToClientMessages(right), newUserMessage, loadingMessage]);
           }
         },
         onModel1Update: (content) => {
@@ -100,13 +69,46 @@ export function useChatSubmission({
         }
       });
     } catch (error) {
-      console.error("Error fetching chat response:", error);
+      logger.error("Error fetching chat response:", error);
       const errorMessage = { role: 'assistant' as const, content: '請求處理時發生錯誤' };
       setMessagesLeft(prev => [...prev.slice(0, -1), errorMessage]);
       setMessagesRight(prev => [...prev.slice(0, -1), errorMessage]);
       setIsLoading(false);
     }
-  };
+  }, [setInput, setIsLoading, threadId, setMessagesLeft, setMessagesRight]);
+
+  const handleSubmit = useCallback(async () => {
+    // 如果已投票，創建新對話而不是在當前 thread 中繼續
+    if (hasVoted && input.trim()) {
+      try {
+        logger.info('Creating new conversation after voting');
+
+        const config = {
+          question: input.trim(),
+          category: 'general',
+          source: 'post_vote_question',
+          metadata: {
+            previousThreadId: threadId,
+            startedAt: new Date().toISOString()
+          }
+        };
+
+        // 創建新對話
+        const newThreadId = await startNewConversation(config);
+
+        // 導航到新對話頁面
+        router.push(`/chat/${newThreadId}`);
+
+      } catch (error) {
+        logger.error('Failed to create new conversation:', error);
+        // 如果創建新對話失敗，回退到在當前 thread 中繼續
+        await handleSubmitWithMessage(input);
+      }
+    } else {
+      // 未投票或空輸入，在當前 thread 中繼續
+      await handleSubmitWithMessage(input);
+    }
+  }, [hasVoted, input, threadId, router, handleSubmitWithMessage]);
 
   return {
     input,

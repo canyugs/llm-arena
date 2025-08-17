@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { toPng } from 'html-to-image';
+import logger from '@/lib/logger';
 
 export const useScreenshot = () => {
   const [loading, setLoading] = useState(false);
@@ -32,7 +33,7 @@ export const useScreenshot = () => {
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
       setError(errorMessage);
-      console.error('Screenshot failed:', err);
+      logger.error('Screenshot failed:', err);
       throw err; // Re-throw to be caught in the component
     } finally {
       setLoading(false);

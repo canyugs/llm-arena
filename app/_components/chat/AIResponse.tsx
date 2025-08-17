@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
+import logger from '@/lib/logger';
 
 // AI 回應元件
 export type AIResponseProps = {
@@ -19,7 +20,7 @@ export const AIResponse = React.memo(({
   className = ""
 }: AIResponseProps) => {
   // 調試：追蹤重新渲染
-  console.log(`[AIResponse-${number}] Rendering with content length:`, content.length, 'at', new Date().toISOString());
+  logger.debug(`[AIResponse-${number}] Rendering with content length:`, content.length, 'at', new Date().toISOString());
 
   // 穩定 plugin 配置，避免每次渲染時重新創建
   const remarkPlugins = useMemo(() => [remarkGfm], []);
@@ -69,7 +70,7 @@ export const AIResponse = React.memo(({
     const nextTrimmed = nextProps.content.trim();
 
     if (prevTrimmed === nextTrimmed) {
-      console.log(`[AIResponse-${nextProps.number}] Skipping render - content unchanged`);
+      logger.debug(`[AIResponse-${nextProps.number}] Skipping render - content unchanged`);
 
       return true; // 不重新渲染
     }
@@ -78,9 +79,9 @@ export const AIResponse = React.memo(({
   const shouldSkipRender = !contentChanged && !numberChanged && !classNameChanged;
 
   if (shouldSkipRender) {
-    console.log(`[AIResponse-${nextProps.number}] Skipping render - no changes`);
+    logger.debug(`[AIResponse-${nextProps.number}] Skipping render - no changes`);
   } else {
-    console.log(`[AIResponse-${nextProps.number}] Will render - changes detected:`, {
+    logger.debug(`[AIResponse-${nextProps.number}] Will render - changes detected:`, {
       contentChanged,
       numberChanged,
       classNameChanged
