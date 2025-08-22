@@ -9,6 +9,7 @@ export interface ModelConfig {
   model: string;
   baseURL: string;
   apiKey: string;
+  enabled?: boolean;
 }
 
 export async function getAvailableModels(): Promise<ModelConfig[]> {
@@ -16,7 +17,8 @@ export async function getAvailableModels(): Promise<ModelConfig[]> {
   const models = db.collection<ModelConfig>('models');
   const find = await models.find({}).toArray();
 
-  return find;
+  // Filter to only return enabled models, treating missing enabled field as enabled for backward compatibility
+  return find.filter(model => model.enabled !== false);
 }
 
 export function shuffle<T>(array: T[]): T[] {
